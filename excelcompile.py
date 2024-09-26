@@ -72,11 +72,7 @@ combined_data = combined_data.transpose()
 
 # エクセルにデータを書き込む (Combined_Detectors シートのみ)
 with pd.ExcelWriter("sorted_speed_data.xlsx", engine='openpyxl') as writer:
-    if not combined_data.empty:
-        # すべてのdetectorのデータを一つのシートにまとめて書き込む（ヘッダーを削除）
-        combined_data.to_excel(writer, sheet_name="Combined_Detectors", index=False, header=False)
-    else:
-        # データがない場合でも、ダミーのシートを作成
-        pd.DataFrame({"Message": ["No detector data found"]}).to_excel(writer, sheet_name="No_Data")
+    # すべてのdetectorのデータを一つのシートにまとめて書き込む（ヘッダーを削除）
+    combined_data.to_excel(writer, sheet_name="Sheet1", index=False, header=False)
 
 print("データのソートが完了し、sorted_speed_data.xlsxに保存されました。")

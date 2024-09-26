@@ -4,30 +4,32 @@ from scipy.linalg import eigh
 import matplotlib.pyplot as plt
 
 # ファイルパス
-file_path = 'C://Users//YuheiTakada//OneDrive//デスクトップ//traffic-simulation-de//sorted_speed_data.xlsx'
+file_path = "C://Users//YuheiTakada//OneDrive//デスクトップ//traffic-simulation-de//sorted_speed_data.xlsx"
 
 # 連続した列を指定
-start_col = 'A'
+start_col = 'CA'
 end_col = 'DI'
 sheet_name = 'Sheet1'
 
 # Excelファイルを読み込み、連続した列を指定
 df = pd.read_excel(file_path, sheet_name=sheet_name, usecols=f'{start_col}:{end_col}', header=None)
 
-# シートと列のペアを作成（列のインデックスを取得）
-sheet_column_pairs = [(sheet_name, col) for col in range(df.shape[1])]
+# 列名を取得（1行目に列名が入っていると仮定）
+df.columns = df.iloc[0]
 
-def read_speed_data(df, column_index):
-    """指定された列のデータを読み込みます。"""
-    if df.shape[0] > 20:  # 21行以上あるか確認
-        speed_data = df.iloc[1:21, column_index].values.flatten()  # 2行目から21行目のデータを取得
-        labels = df.iloc[0, column_index]  # 第一行をラベルとして取得
-        return speed_data, labels
+# デバッグ: 列名が正しく読み込まれているか確認
+print("読み込まれた列名:")
+print(df.columns.tolist())
+
+def read_speed_data(df, column_name):
+    if df.shape[0] >= 21:
+        speed_data = df[column_name].iloc[0:20].values.flatten()
+        label = column_name
+        return speed_data, label
     else:
         raise ValueError("データフレームに21行以上のデータが必要です。")
 
 def create_adjacency_matrix(n):
-    """グラフの隣接行列を作成します。"""
     A = np.zeros((n, n))
     for i in range(n - 1):
         A[i, i + 1] = 1
@@ -35,92 +37,94 @@ def create_adjacency_matrix(n):
     return A
 
 def compute_laplacian(A):
-    """隣接行列からラプラシアン行列を計算します。"""
     row_sums = np.sum(A, axis=1)
     D = np.diag(row_sums)
     L = D - A
     return L, D
 
 def compute_normalized_laplacian(L, D):
-    """ラプラシアン行列の正規化を行います。"""
     D_inv_sqrt = np.linalg.inv(np.sqrt(D))
     L_normalized = np.dot(D_inv_sqrt, np.dot(L, D_inv_sqrt))
     return L_normalized
 
-def compute_graph_fourier_transform(df, sheet_column_pairs, L_normalized, eigenvalues):
-    """指定されたシートと列のデータについてグラフフーリエ変換を計算します。"""
-    results = {}
-    eigenvectors = eigh(L_normalized, eigvals_only=False)[1]
-    
-    for sheet_name, column_index in sheet_column_pairs:
-        speed_data, _ = read_speed_data(df, column_index)
+n = 20
+A = create_adjacency_matrix(n)
+L, D = compute_laplacian(A)
+L_normalized = compute_normalized_laplacian(L, D)
 
-        # 固有値と固有ベクトルに基づくグラフフーリエ変換の計算
-        F_lambda = np.zeros(eigenvectors.shape[1], dtype=complex)
-        for i in range(eigenvectors.shape[1]):
-            u_lambda_i = eigenvectors[:, i]
-            F_lambda[i] = np.sum(speed_data * np.conj(u_lambda_i))
-        
-        results[(sheet_name, column_index)] = {
-            'F_lambda_real': abs(np.real(F_lambda)),
-            'eigenvalues': eigenvalues
-        }
-    
-    return results
+# 上位結果を格納する辞書
+all_results = {}
 
-def plot_eigenvalue_results(results, labels):
-    """すべての固有値に基づくデータをプロットします。"""
-    num_eigenvalues = len(results[next(iter(results))]['eigenvalues'])
-    
-    # 4行5列のサブプロットを作成
-    fig, axs = plt.subplots(4, 5, figsize=(20, 16))
-    axs = axs.flatten()  # 2次元配列を1次元に変換
+for column_name in df.columns:
+    speed_data, _ = read_speed_data(df, column_name)
+    eigenvalues, eigenvectors = eigh(L_normalized, eigvals_only=False)
 
-    # 縦軸のスケールを統一するための最大値と最小値を計算
-    all_F_values = []
-    for data in results.values():
-        all_F_values.extend(data['F_lambda_real'])
-    
-    y_min = min(all_F_values)
-    y_max = max(all_F_values)
+    F_lambda = np.zeros(eigenvectors.shape[1], dtype=complex)
+    for i in range(eigenvectors.shape[1]):
+        u_lambda_i = eigenvectors[:, i]
+        F_lambda[i] = np.sum(speed_data * np.conj(u_lambda_i))
 
-    for i in range(num_eigenvalues):
-        for (sheet_name, column_index), data in results.items():
-            if len(data['eigenvalues']) >= (i + 1):
-                F_value = data['F_lambda_real'][i]
-                axs[i].bar(labels[column_index], F_value, color='b', alpha=0.7)
-                axs[i].set_title(f'λ_ {i + 1}', fontsize=10)  # 標題のフォントサイズを小さく
-                axs[i].set_xlabel('Speed Data (from Excel)', fontsize=8)  # 横軸ラベルのサイズ
-                axs[i].set_ylabel(f'F(λ)', fontsize=8)  # 縦軸ラベルのサイズ
-                axs[i].set_ylim(y_min, y_max)  # 縦軸のスケールを統一
-                axs[i].tick_params(axis='x', rotation=0)  # 横軸の目盛りを水平に
-                axs[i].grid(axis='y')
-    
-    plt.tight_layout()
-    plt.show()
+    results = [(eigenvalues[i], F_lambda[i].real) for i in range(len(F_lambda))]
+    #results = [res for res in results if not np.isclose(res[0], 0)]
+    sorted_eigenvalues = sorted(eigenvalues)
+    results.sort(key=lambda x: abs(x[1]), reverse=True)
 
+    # 上位3つの結果を保存
+    top_results = results[:3]
+    if column_name not in all_results:
+        all_results[column_name] = []
 
-def main(file_path, sheet_column_pairs):
-    # グラフ構造の設定
-    n_nodes = 20
-    A = create_adjacency_matrix(n_nodes)
-    L, D = compute_laplacian(A)
-    L_normalized = compute_normalized_laplacian(L, D)
-    eigenvalues, _ = eigh(L_normalized)
-    
-    # グラフフーリエ変換の計算
-    results = compute_graph_fourier_transform(df, sheet_column_pairs, L_normalized, eigenvalues)
-    
-    # 第一行のラベルを取得
-    labels = {}
-    for sheet_name, column_index in sheet_column_pairs:
-        _, label = read_speed_data(df, column_index)
-        labels[column_index] = label
+    for eigenvalue, _ in top_results:
+        sorted_rank = sorted_eigenvalues.index(eigenvalue) + 1
+        all_results[column_name].append([f"{sorted_rank}"])
 
-    # すべての固有値に基づくデータをプロット
-    plot_eigenvalue_results(results, labels)
+# 表を作成するためのデータを準備
+table_data = [['time', 'λ index no.1', 'λ index no.2', 'λ index no.3']]
+for time, results in all_results.items():
+    row = [time]
+    for result in results:
+        row.extend(result)
+    # 上位3つに満たない場合は空白を追加
+    while len(row) < 4:
+        row.append('')
+    table_data.append(row)
+
+# グラフの描画
+fig, ax = plt.subplots(figsize=(10, len(table_data) * 0.3))
+
+# テーブルを描画
+table = ax.table(cellText=table_data, colLabels=None, cellLoc='center', loc='center')
+
+# セルの色を設定
+for (i, j), cell in table.get_celld().items():
+    if i == 0:
+        cell.set_facecolor('#d9d9d9')  # ヘッダー行の色
+    else:
+        value = table_data[i][j]
+        # 値が空白でない場合のみ色を設定
+        if isinstance(value, str) and value.isdigit():  # 文字列の場合
+            value = int(value)
+        else:
+            value = None  # 数字でない場合はNoneに設定
+
+        if value is not None:  # 数値の場合のみ
+            if value <= 20:
+                color = plt.cm.Reds(value / 30)  # 0~20の範囲を0~1にスケール
+                cell.set_facecolor(color)
+            else:
+                cell.set_facecolor('white')  # それ以外は白
+        else:
+            cell.set_facecolor('white')  # 空白または数字でない場合は白
 
 
+# テーブルのフォントサイズとスケールを設定
+table.auto_set_font_size(False)
+table.set_fontsize(10)
+table.scale(1.2, 1.2)
 
-# 実行部分
-main(file_path, sheet_column_pairs)
+table.auto_set_column_width([0, 1, 2, 3])
+ax.axis('tight')
+ax.axis('off')
+
+plt.title('Top 3 Eigenvalues for Each Time Except for λ=0')
+plt.show()
