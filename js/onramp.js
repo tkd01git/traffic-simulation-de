@@ -389,10 +389,17 @@ var virtualStandingVeh=new vehicle(2, laneWidth, ramp.roadLen-1, 0, 0, "obstacle
 ramp.veh.unshift(virtualStandingVeh);
 
 
-var detectors=[];
-detectors[0]=new stationaryDetector(mainroad,0.10*mainroadLen,10);
-detectors[1]=new stationaryDetector(mainroad,0.60*mainroadLen,10);
-detectors[2]=new stationaryDetector(mainroad,0.90*mainroadLen,10);
+var detectors = [];
+var startCoordinate = 390; // 初期座標
+var increment = 15; // 増加値
+var numDetectors = 20; // 検出器の数
+
+for (var i = 0; i < numDetectors; i++) {
+    var coordinate = startCoordinate + (i * increment); // 各検出器の座標
+    detectors[i] = new stationaryDetector(mainroad, coordinate, 1); // 検出器を配置
+}
+
+
 
 //</NETWORK>
 

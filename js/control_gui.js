@@ -516,7 +516,7 @@ if(document.getElementById("slider_scale")!==null) {
 
 // inflow slider 
 
-var qIn=4.4/3.6;    //total inflow, overridden in roadworks.js, routing.js
+var qIn=3000/3600;    //total inflow, overridden in roadworks.js, routing.js
 var slider_qIn,slider_qInVal;
 if(document.getElementById("slider_qIn")!==null){
     slider_qIn= document.getElementById("slider_qIn");
@@ -532,7 +532,7 @@ if(document.getElementById("slider_qIn")!==null){
 
 // second flow slider
 
-var q2=900/3600.; //total onramp flow of onramp scenario
+var q2=750/3600.; //total onramp flow of onramp scenario
 var slider_q2,slider_q2Val;
 if(document.getElementById("slider_q2")!==null){
     slider_q2= document.getElementById("slider_q2");
@@ -550,7 +550,7 @@ if(document.getElementById("slider_q2")!==null){
 
 // ramp flow slider
 
-var qOn=800/3600.; //total onramp flow of onramp scenario
+var qOn=750/3600.; //total onramp flow of onramp scenario
 var slider_qOn,slider_qOnVal;
 if(document.getElementById("slider_qOn")!==null){
     slider_qOn= document.getElementById("slider_qOn");
@@ -568,7 +568,7 @@ if(document.getElementById("slider_qOn")!==null){
 
 // truck fraction slider
 
-var fracTruck=0.10; // 0.10
+var fracTruck=0; // 0.10
 var fracTruckToleratedMismatch=1; // 1=100% allowed=>chges only by sources
 
 var slider_fracTruck;
