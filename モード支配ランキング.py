@@ -92,7 +92,31 @@ for time, results in all_results.items():
 # グラフの描画
 fig, ax = plt.subplots(figsize=(10, len(table_data) * 0.3))
 
+# テーブルを描画
 table = ax.table(cellText=table_data, colLabels=None, cellLoc='center', loc='center')
+
+# セルの色を設定
+for (i, j), cell in table.get_celld().items():
+    if i == 0:
+        cell.set_facecolor('#d9d9d9')  # ヘッダー行の色
+    else:
+        value = table_data[i][j]
+        # 値が空白でない場合のみ色を設定
+        if isinstance(value, str) and value.isdigit():  # 文字列の場合
+            value = int(value)
+        else:
+            value = None  # 数字でない場合はNoneに設定
+
+        if value is not None:  # 数値の場合のみ
+            if value <= 20:
+                color = plt.cm.Reds(value / 30)  # スケールを30に変更して薄くする
+                cell.set_facecolor(color)
+            else:
+                cell.set_facecolor('white')  # それ以外は白
+        else:
+            cell.set_facecolor('white')  # 空白または数字でない場合は白
+
+# テーブルのフォントサイズとスケールを設定
 table.auto_set_font_size(False)
 table.set_fontsize(10)
 table.scale(1.2, 1.2)
