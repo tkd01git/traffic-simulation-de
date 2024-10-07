@@ -1130,90 +1130,84 @@ function loadXLSX(callback) {
   }
 }
 
-function getNewFilename(baseName) {
-  // ベースとなるファイル名 (例: "data")
-  const maxFiles = 999; // 最大ファイル番号 (例: data001 ～ data999)
-
-  // ローカルストレージから最新のファイル番号を取得
-  let lastFileNumber = localStorage.getItem('lastFileNumber') || 0;
-
-  // 新しいファイル番号を計算
-  let newFileNumber = parseInt(lastFileNumber) + 1;
-  if (newFileNumber > maxFiles) {
-      console.error("Max file limit reached. Cannot generate a new file.");
-      return null;
-  }
-
-  // 新しいファイル名を作成 (例: "data001.xlsx")
-  const newFilename = `${baseName}${String(newFileNumber).padStart(3, '0')}.xlsx`;
-
-  // ローカルストレージに新しいファイル番号を保存
-  localStorage.setItem('lastFileNumber', newFileNumber);
-
-  return newFilename;
-}
-
-// performDownload関数でファイル名を取得し、使用する方法
 function performDownload() {
   console.log("Performing download for all detectors as a single Excel file.");
 
-  // 新しいファイル名を取得
-  const filename = getNewFilename("data");
-
-  if (!filename) {
-      console.error("Failed to generate a new filename.");
-      return;
-  }
-
-  // XLSXライブラリを読み込んでから実行
   loadXLSX(() => {
       try {
-          // 新しいワークブックとシートを作成
           const wb = XLSX.utils.book_new();
           const ws = {};
-          let rowIndex = 1; // Excelの行インデックス (1から始まる)
+          let rowIndex = 1;
 
-          // detectors配列の各detectorに対して処理を実行
           detectors.forEach((detector, index) => {
-              // 各detectorの名前をシートに書き込む (例: detector0)
               ws['A' + rowIndex] = { v: 'detector' + index };
               rowIndex++;
 
-              // detectorのexportStringからデータを取得し、行ごとにパース
               const rows = detector.exportString.trim().split('\n').map(row => row.split('\t\t'));
-
-              // 各行のデータを順にExcelシートに書き込む
               rows.forEach((row) => {
-                  const time = row[0];  // 時刻
-                  const flow = row[1];  // フロー
-                  const speed = row[2]; // 速度
+                  const time = row[0];
+                  const flow = row[1];
+                  const speed = row[2];
 
-                  // time, flow, speedをそれぞれ列A, B, Cに書き込む
                   ws['A' + rowIndex] = { v: time };
                   ws['B' + rowIndex] = { v: flow };
                   ws['C' + rowIndex] = { v: speed };
                   rowIndex++;
               });
 
-              // 次のdetectorの前に空行を追加
               rowIndex++;
           });
 
-          // シートの範囲を設定
           ws['!ref'] = `A1:C${rowIndex - 1}`;
-
-          // ワークブックにシートを追加
-          XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-
-          // ファイルを書き込み
+          XLSX.utils.book_append_sheet(wb, ws, 'sheet1');
+          const filename = 'data.xlsx';
           XLSX.writeFile(wb, filename);
 
-          console.log("すべてのdetectorのデータがExcelファイルに保存されました: " + filename);
+          console.log("Excel file saved as:", filename);
+
+          // Pythonスクリプトを呼び出して処理済みファイルを生成
+          runPythonScript(filename, 'prodata.xlsx');
       } catch (error) {
           console.error("An error occurred while writing all detectors to Excel:", error);
       }
   });
 }
+
+function runPythonScript(inputFilename, outputFilename) {
+  console.log("Running Python script..."); // スクリプトの開始を確認
+
+    fetch('http://localhost:5000/run-script', { // サーバーのURLが正しいか確認
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ inputFilename: inputFilename, outputFilename: outputFilename }),
+  })
+
+  .then(response => {
+      console.log("Received response from server:", response); // サーバーからのレスポンスを確認
+      if (!response.ok) {
+          throw new Error('Network response was not ok');
+      }
+      return response.json();
+  })
+  .then(data => {
+      console.log("Python script executed successfully:", data); // スクリプトが成功した場合の確認
+
+      // 処理が完了したら、ブラウザにダウンロードリンクを更新
+      const link = document.createElement('a');
+      link.href = outputFilename;
+      link.download = outputFilename;
+      link.innerHTML = 'Download processed data (prodata.xlsx)';
+      document.body.appendChild(link);
+  })
+  .catch(error => {
+      console.error("Error running Python script:", error); // エラー内容の詳細を表示
+  });
+}
+
+
+
 
 
 
