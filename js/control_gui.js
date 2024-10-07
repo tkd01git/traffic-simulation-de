@@ -1096,12 +1096,12 @@ function downloadCallback(){
 
     if(typeof detectors!=="undefined"){
       for (var iDet=0; iDet<detectors.length; iDet++){
-        var det=detectors[iDet];
-        console.log("det=",det);
-        det.exportString="#Detector "+iDet
- 	  +" at road "+det.road.roadID+" at position x="+det.u.toFixed(0)
-	  + " aggregation time [s]="+det.dtAggr
-	  +"\n#time[s]\tflow[veh/h]\tspeed[km/h]";
+        //var det=detectors[iDet];
+        //console.log("det=",det);
+        //det.exportString="#Detector "+iDet
+ 	  //+" at road "+det.road.roadID+" at position x="+det.u.toFixed(0)
+	  //+ " aggregation time [s]="+det.dtAggr
+	  //+"\n#time[s]\tflow[veh/h]\tspeed[km/h]";
       }
     }
     downloadActive=true;
@@ -1110,26 +1110,109 @@ function downloadCallback(){
 }
 
 
-function performDownload(){// callback of download finish button
-  var msg="";
-  for(var i=0; i<network.length; i++){
-    var filename="road"+network[i].roadID+"_time"+time.toFixed(1)+".txt";
-    msg=msg+filename+" ";
-    network[i].writeVehiclesSimpleToFile(filename);
+// XLSXライブラリを動的にロードする関数
+function loadXLSX(callback) {
+  if (typeof XLSX === 'undefined') {
+      // ライブラリがまだ読み込まれていない場合は、スクリプトタグを作成してロード
+      var script = document.createElement('script');
+      script.src = "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
+      script.onload = function() {
+          console.log("XLSX library loaded successfully.");
+          callback();
+      };
+      script.onerror = function() {
+          console.error("Failed to load XLSX library.");
+      };
+      document.head.appendChild(script);
+  } else {
+      // すでにXLSXが定義されている場合は、コールバックをそのまま実行
+      callback();
   }
-  if(typeof detectors!=="undefined"){
-    for (var iDet=0; iDet<detectors.length; iDet++){
-      var filename="Detector"+iDet
-        +"_road"+detectors[iDet].road.roadID
-        +"_x"+detectors[iDet].u.toFixed(0)+"_time"+time.toFixed(0)+".txt";
-      msg=msg+filename+" ";
-      detectors[iDet].writeToFile(filename);
-    }
+}
+
+function getNewFilename(baseName) {
+  // ベースとなるファイル名 (例: "data")
+  const maxFiles = 999; // 最大ファイル番号 (例: data001 ～ data999)
+
+  // ローカルストレージから最新のファイル番号を取得
+  let lastFileNumber = localStorage.getItem('lastFileNumber') || 0;
+
+  // 新しいファイル番号を計算
+  let newFileNumber = parseInt(lastFileNumber) + 1;
+  if (newFileNumber > maxFiles) {
+      console.error("Max file limit reached. Cannot generate a new file.");
+      return null;
   }
 
-  msg="wrote files "+msg+" to default folder (Downloads)";
-  downloadActive=false;
-  alert(msg);
+  // 新しいファイル名を作成 (例: "data001.xlsx")
+  const newFilename = `${baseName}${String(newFileNumber).padStart(3, '0')}.xlsx`;
+
+  // ローカルストレージに新しいファイル番号を保存
+  localStorage.setItem('lastFileNumber', newFileNumber);
+
+  return newFilename;
+}
+
+// performDownload関数でファイル名を取得し、使用する方法
+function performDownload() {
+  console.log("Performing download for all detectors as a single Excel file.");
+
+  // 新しいファイル名を取得
+  const filename = getNewFilename("data");
+
+  if (!filename) {
+      console.error("Failed to generate a new filename.");
+      return;
+  }
+
+  // XLSXライブラリを読み込んでから実行
+  loadXLSX(() => {
+      try {
+          // 新しいワークブックとシートを作成
+          const wb = XLSX.utils.book_new();
+          const ws = {};
+          let rowIndex = 1; // Excelの行インデックス (1から始まる)
+
+          // detectors配列の各detectorに対して処理を実行
+          detectors.forEach((detector, index) => {
+              // 各detectorの名前をシートに書き込む (例: detector0)
+              ws['A' + rowIndex] = { v: 'detector' + index };
+              rowIndex++;
+
+              // detectorのexportStringからデータを取得し、行ごとにパース
+              const rows = detector.exportString.trim().split('\n').map(row => row.split('\t\t'));
+
+              // 各行のデータを順にExcelシートに書き込む
+              rows.forEach((row) => {
+                  const time = row[0];  // 時刻
+                  const flow = row[1];  // フロー
+                  const speed = row[2]; // 速度
+
+                  // time, flow, speedをそれぞれ列A, B, Cに書き込む
+                  ws['A' + rowIndex] = { v: time };
+                  ws['B' + rowIndex] = { v: flow };
+                  ws['C' + rowIndex] = { v: speed };
+                  rowIndex++;
+              });
+
+              // 次のdetectorの前に空行を追加
+              rowIndex++;
+          });
+
+          // シートの範囲を設定
+          ws['!ref'] = `A1:C${rowIndex - 1}`;
+
+          // ワークブックにシートを追加
+          XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+
+          // ファイルを書き込み
+          XLSX.writeFile(wb, filename);
+
+          console.log("すべてのdetectorのデータがExcelファイルに保存されました: " + filename);
+      } catch (error) {
+          console.error("An error occurred while writing all detectors to Excel:", error);
+      }
+  });
 }
 
 

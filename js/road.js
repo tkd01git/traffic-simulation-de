@@ -284,7 +284,7 @@ road.prototype.initRegularVehicles=function(densityPerLane,fracTruck,
     // initRegularVehicles: vehTypes
     // vehAttr={type: vehType, len: length, width: width}
     var vehAttr=this.getAttributes(fracTruck, fracOthers);
-    console.log("vehAttr=",vehAttr);
+    //console.log("vehAttr=",vehAttr);
     var vehType=vehAttr.type;
     var vehLength=vehAttr.len;
     var vehWidth=vehAttr.width;
@@ -368,34 +368,6 @@ road.prototype.subtractOneLane=function(){
 //######################################################################
 
 road.prototype.writeVehicles=function(umin,umax) {
-    console.log("\nin road.writeVehicles(): itime=",itime,
-		" roadID=",this.roadID,
-		" nVehicles=",this.veh.length,
-		" roadLen=",this.roadLen);
-
-    var uminLoc=(typeof umin!=='undefined') ? umin : 0;
-    var umaxLoc=(typeof umax!=='undefined') ? umax : this.roadLen;
-
-    for(var i=0; i<this.veh.length; i++){
-	if((this.veh[i].u>=uminLoc)&&(this.veh[i].u<=umaxLoc)){
-            console.log(" veh["+i+"].id="+this.veh[i].id
-		   +"  type="+this.veh[i].type
-		   +"  len="+this.veh[i].len
-		   +"  u="+parseFloat(this.veh[i].u,10).toFixed(1)
-		   +"  lane="+this.veh[i].lane
-		   +"  v="+parseFloat(this.veh[i].v,10).toFixed(1)
-		   +"  speed="+parseFloat(this.veh[i].speed,10).toFixed(1)
-		   +"  acc="+parseFloat(this.veh[i].acc,10).toFixed(1)
-		   +"  iLead="+this.veh[i].iLead
-		   +"  iLag="+this.veh[i].iLag
-		   +"  iLeadRight="+this.veh[i].iLeadRight
-		   +"  iLagRight="+this.veh[i].iLagRight
-		   +"  iLeadLeft="+this.veh[i].iLeadLeft
-		   +"  iLagLeft="+this.veh[i].iLagLeft
-		   +"");
-	}
-    }
-
 } // writeVehicles
 
 
@@ -3300,8 +3272,6 @@ road.prototype.mergeDiverge=function(otherRoad,offset,uBegin,uEnd,
 	       && originVehicles[0].isRegularVeh()
 	       &&(originVehicles[0].id==540)
 	      )){
-    console.log("\nmergeDiverge (2a): testing origin veh id="
-		+originVehicles[0].id +" success="+success);
   }
 
   
@@ -3422,16 +3392,16 @@ road.prototype.mergeDiverge=function(otherRoad,offset,uBegin,uEnd,
 	if(success||(originVehicles[i].id==540)){
 	//if(success){
 	      //if(true){
-	  console.log("\nmergeDiverge (2b): testing origin veh id="
-		      +originVehicles[i].id+" uTarget="+uTarget
-		      +" divergeAhead="+originVehicles[i].divergeAhead);
+	  //console.log("\nmergeDiverge (2b): testing origin veh id="
+		      //+originVehicles[i].id+" uTarget="+uTarget
+		      //+" divergeAhead="+originVehicles[i].divergeAhead);
 	  //console.log("  sNew="+sNew+" sLagNew="+sLagNew);
 	  //console.log("  speed="+speed +" speedLagNew="+speedLagNew);
 	  //console.log("  acc="+acc
 	//	      +" accNew="+accNew+" accLagNew="+accLagNew);
-	  console.log("  duLeader="+duLeader+"  duFollower="+duFollower
-		      +" sLagNew="+sLagNew
-		      +" MOBILOK="+MOBILOK+" success="+success);
+	  //console.log("  duLeader="+duLeader+"  duFollower="+duFollower
+		      //+" sLagNew="+sLagNew
+		      //+" MOBILOK="+MOBILOK+" success="+success);
 	}
 	
       } // !obstacle
@@ -3531,23 +3501,23 @@ road.prototype.mergeDiverge=function(otherRoad,offset,uBegin,uEnd,
 	var iOrig=iMerge+this.iTargetFirst;
 	//if(false){
 	if(true){
-	  console.log(
-	    "\n=========================================\n",
-	    "mergeDiverge (4) Actual merging vehicle id "+this.veh[iOrig].id
+	  //console.log(
+	    //"\n=========================================\n",
+	    //"mergeDiverge (4) Actual merging vehicle id "+this.veh[iOrig].id
 		      //	+" of type "+this.veh[iOrig].type
-	      +" from road "+this.roadID
-	      +" to road ",+otherRoad.roadID
+	      //+" from road "+this.roadID
+	      //+" to road ",+otherRoad.roadID
 	//	+" from origin position "+this.veh[iOrig].u
 	      //+" and origin lane"+originLane
 	      //+" to target position "+uTarget
 	    //+" and target lane"+targetLane
-	  );
-	  console.log(
-	    " this.veh[iOrig].divergeAhead)="
-	      +this.veh[iOrig].divergeAhead
-	      +" routeOK="+
-	      (this.veh[iOrig].route.includes(otherRoad.roadID))
-	  );
+	  //);
+	  //console.log(
+	    //" this.veh[iOrig].divergeAhead)="
+	      //+this.veh[iOrig].divergeAhead
+	      //+" routeOK="+
+	      //(this.veh[iOrig].route.includes(otherRoad.roadID))
+	  //);
 
 	}
 

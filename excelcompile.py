@@ -79,10 +79,10 @@ def process_detector_data(file_path, speed_column_index):
 file_path = "C://Users//YuheiTakada//Downloads//1004simulation.xlsx"
 
 # 速度データの処理
-speed_combined_data = process_detector_data(file_path, 4)
+speed_combined_data = process_detector_data(file_path, 2)
 
 # 流量データの処理
-flow_combined_data = process_detector_data(file_path, 2)
+flow_combined_data = process_detector_data(file_path, 1)
 
 # エクセルにデータを書き込む
 with pd.ExcelWriter("sorted_data.xlsx", engine='openpyxl') as writer:
