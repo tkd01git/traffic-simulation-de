@@ -6,8 +6,8 @@ from mpl_toolkits.mplot3d import Axes3D
 
 # Excelファイルの読み込みと前処理
 file_path = "C://Users//YuheiTakada//OneDrive//デスクトップ//traffic-simulation-de//prodata.xlsx"
-start_col = 'HZ'
-end_col = 'GV'
+start_col = 'FR'
+end_col = 'HP'
 sheet_name1 = 'Sheet1'
 sheet_name2 = 'Sheet2'
 

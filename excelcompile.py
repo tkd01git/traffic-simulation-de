@@ -129,15 +129,18 @@ for col in range(sheet2_data.shape[1]):
     avg_speed = sheet2_data.iloc[23, col]  # 24行目のデータが平均速度
     if pd.notna(avg_speed) and avg_speed < 40:
         current_column_letter = column_to_letter(col)
-        print(f"First time speed drops below 40 km/h at column {current_column_letter}")
-        
-        # 30列前の列名を取得
-        if col >= 30:
-            previous_column_letter = column_to_letter(col - 30)
-            print(f"Column 30 columns before: {previous_column_letter}")
-        else:
-            print("There is no column 30 columns before.")
+        first_row_value = sheet2_data.iloc[0, col]  # その列の第一行を取得
+
+        # 10列前と60列前の列名を取得
+        previous_10_column_letter = column_to_letter(col - 10) if col >= 10 else "N/A"
+        previous_60_column_letter = column_to_letter(col - 60) if col >= 60 else "N/A"
+
+        # 結果の出力
+        print(f"jam occuring time: {first_row_value}")
+        print(f"60 columns before: {previous_60_column_letter}")
+        print(f"10 columns before: {previous_10_column_letter}")
         break  # 最初に40km/hを下回った列を見つけたら終了
+
 
 # 最終的なデータをExcelに保存
 with pd.ExcelWriter("prodata.xlsx", engine='openpyxl', mode='a', if_sheet_exists='replace') as writer:
