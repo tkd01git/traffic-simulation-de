@@ -4,6 +4,13 @@ from scipy.linalg import eigh
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
+# Excelファイルの読み込みと前処理
+file_path = "C://Users//YuheiTakada//OneDrive//デスクトップ//traffic-simulation-de//prodata.xlsx"
+start_col = 'HZ'
+end_col = 'GV'
+sheet_name1 = 'Sheet1'
+sheet_name2 = 'Sheet2'
+
 # 3Dプロット用の関数（棒グラフ）
 def plot_3d_bar_with_top3(lambdas, times, F_lambda_abs_values, top3_indices_per_time):
     fig = plt.figure(figsize=(16, 8))
@@ -35,12 +42,7 @@ def plot_3d_bar_with_top3(lambdas, times, F_lambda_abs_values, top3_indices_per_
     
     return fig, ax
 
-# Excelファイルの読み込みと前処理
-file_path = "C://Users//YuheiTakada//OneDrive//デスクトップ//traffic-simulation-de//sorted_data.xlsx"
-start_col = 'AY'
-end_col = 'CD'
-sheet_name1 = 'Sheet1'
-sheet_name2 = 'Sheet2'
+
 
 # Sheet1とSheet2のデータの取得
 df1 = pd.read_excel(file_path, sheet_name=sheet_name1, usecols=f'{start_col}:{end_col}', header=None)
