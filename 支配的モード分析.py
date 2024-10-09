@@ -6,8 +6,8 @@ from mpl_toolkits.mplot3d import Axes3D
 
 # Excelファイルの読み込みと前処理
 file_path = "C://Users//YuheiTakada//OneDrive//デスクトップ//traffic-simulation-de//prodata.xlsx"
-start_col = 'FR'
-end_col = 'HP'
+start_col = 'DW'
+end_col = 'FO'
 sheet_name1 = 'Sheet1'
 sheet_name2 = 'Sheet2'
 
@@ -24,6 +24,7 @@ def plot_3d_bar_with_top3(lambdas, times, F_lambda_abs_values, top3_indices_per_
     # 棒の幅と深さ
     dx = dy = 0.7  # 少し狭めに調整して軽量化
     dz = Z.flatten()
+    
 
     # 各時刻の上位3つのFλの値に特別な色を付ける
     colors = np.full_like(dz, fill_value='gray', dtype=object)  # 全ての棒は初期状態で灰色に変更
