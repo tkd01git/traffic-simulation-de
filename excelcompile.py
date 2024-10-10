@@ -1,12 +1,16 @@
 import pandas as pd
+import openpyxl
 import re
 
 def process_detector_data(file_path, speed_column_index):
+    # Excelファイルからすべてのデータを読み込む
     df = pd.read_excel(file_path, sheet_name="sheet1", engine='openpyxl')
     
+    # 指定した列がデータの範囲を超える場合は空のDataFrameを返す
     if speed_column_index >= df.shape[1]:
         return pd.DataFrame()
-        
+
+    # 各カラムからデータを取得
     time_data = df.iloc[:, 0]
     data = df.iloc[:, speed_column_index]
     comments = df.iloc[:, 0]
@@ -15,8 +19,8 @@ def process_detector_data(file_path, speed_column_index):
     detector_pattern = re.compile(r"detector(\d+)", re.IGNORECASE)
 
     detector_data['0'] = pd.DataFrame({
-        'Time': time_data.iloc[0:250].values,
-        'Data': data.iloc[0:250].values
+        'Time': time_data.iloc[:].values,  # 全行を取得
+        'Data': data.iloc[:].values
     })
 
     current_detector = None
@@ -75,7 +79,7 @@ def column_to_letter(column_index):
     return letter
 
 # ファイルパス
-file_path = "C://Users//YuheiTakada//Downloads//data (1).xlsx"
+file_path = "C://Users//YuheiTakada//Downloads//data (30).xlsx"
 
 # 速度データの処理
 speed_combined_data = process_detector_data(file_path, 2)
@@ -86,15 +90,15 @@ flow_combined_data = process_detector_data(file_path, 1)
 # エクセルにデータを書き込む
 with pd.ExcelWriter("prodata.xlsx", engine='openpyxl') as writer:
     if not speed_combined_data.empty:
-        speed_combined_data.to_excel(writer, sheet_name="Sheet1", index=False, header=False, startrow=0, startcol=0)
+        speed_combined_data.to_excel(writer, sheet_name="Sheet1", index=False, header=False)
     if not flow_combined_data.empty:
-        flow_combined_data.to_excel(writer, sheet_name="Sheet2", index=False, header=False, startrow=0, startcol=0)
+        flow_combined_data.to_excel(writer, sheet_name="Sheet2", index=False, header=False)
 
 # Sheet2のデータを処理
-sheet2_data = pd.read_excel("prodata.xlsx", sheet_name="Sheet2", header=None)
+sheet2_data = pd.read_excel("prodata.xlsx", sheet_name="Sheet2", header=None, engine='openpyxl')
 
 # Sheet1のデータを再度読み込む
-sheet1_data = pd.read_excel("prodata.xlsx", sheet_name="Sheet1", header=None)
+sheet1_data = pd.read_excel("prodata.xlsx", sheet_name="Sheet1", header=None, engine='openpyxl')
 
 # 必要な行数を確認し、不足している場合は行を追加
 required_rows = 24
@@ -124,52 +128,9 @@ for col in range(sheet2_data.shape[1]):
     
     sheet2_data.iloc[23, col] = result
 
-# 初めて平均速度が40km/h, 30km/h, 20km/h, 10km/hを下回った時をチェック
-thresholds = [40, 30, 20, 10]
+# 最後に全てのデータを書き込む
+with pd.ExcelWriter("prodata.xlsx", engine='openpyxl', mode='w') as writer:
+    sheet1_data.to_excel(writer, sheet_name="Sheet1", index=False, header=False)
+    sheet2_data.to_excel(writer, sheet_name="Sheet2", index=False, header=False)
 
-for threshold in thresholds:
-    found = False  # 閾値を下回るデータが見つかったかどうかを追跡
-    for col in range(sheet2_data.shape[1]):
-        avg_speed = sheet2_data.iloc[23, col]  # 24行目のデータが平均速度
-        
-        if pd.notna(avg_speed) and avg_speed < threshold:
-            current_column_letter = column_to_letter(col)
-            first_row_value = sheet2_data.iloc[0, col]  # その列の第一行を取得
-
-            # 10列前と50列前の列名とその列の時刻を取得
-            if col >= 10:
-                previous_10_column_letter = column_to_letter(col - 10)
-                previous_10_time = sheet2_data.iloc[0, col - 10]
-            else:
-                previous_10_column_letter = "N/A"
-                previous_10_time = "N/A"
-
-            if col >= 50:
-                previous_50_column_letter = column_to_letter(col - 50)
-                previous_50_time = sheet2_data.iloc[0, col - 50]
-            else:
-                previous_50_column_letter = "N/A"
-                previous_50_time = "N/A"
-
-            # 結果の出力
-            print(f"Threshold: {threshold} km/h")
-            print(f"Column: {current_column_letter}, Time: {first_row_value}")
-            print(f"10 columns before: {previous_10_column_letter}, Time: {previous_10_time}")
-            print(f"50 columns before: {previous_50_column_letter}, Time: {previous_50_time}")
-            print("------")
-            found = True
-            break  # 最初に条件を満たした列を見つけたら次の閾値へ
-
-import pandas as pd
-
-# 最終的なデータをExcelに保存
-try:
-    # 'prodata.xlsx'を新規作成または既存のファイルを完全に上書き
-    with pd.ExcelWriter("prodata.xlsx", engine='openpyxl', mode='w') as writer:
-        # Sheet1とSheet2のデータをそれぞれ書き込む
-        sheet1_data.to_excel(writer, sheet_name="Sheet1", index=False, header=False)
-        sheet2_data.to_excel(writer, sheet_name="Sheet2", index=False, header=False)
-
-    print("Data has been successfully written to 'prodata.xlsx'.")
-except Exception as e:
-    print(f"An error occurred while writing to the Excel file: {e}")
+print("Data has been successfully written to 'prodata.xlsx'.")
