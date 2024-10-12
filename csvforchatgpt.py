@@ -7,20 +7,17 @@ import os
 
 # Excelファイルの読み込みと前処理
 file_path = "C://Users//YuheiTakada//OneDrive//デスクトップ//traffic-simulation-de//prodata.xlsx"
-start_col = 'F'
-end_col = 'MR'
+start_col = 'HR'
+end_col = 'OM'
 sheet_name1 = 'Sheet1'
 sheet_name2 = 'Sheet2'
 
 # 結果を保存するためのDataFrameの作成
-results_df = pd.DataFrame(columns=['Time', 'Average Speed', 'Lambda Index No.1', 'Lambda Index No.2', 'Lambda Index No.3', '|F(λ)| No.1', '|F(λ)| No.2', '|F(λ)| No.3'])
+results_df = pd.DataFrame(columns=['Time', 'Average Speed'] + [f'Lambda Index No.{i}' for i in range(1, 21)] + [f'|F(λ)| No.{i}' for i in range(1, 21)])
 
 # CSVファイル名
-file_name = "simulationresults.csv"
+file_name = "002nojam.csv"
 
-# シミュレーションの開始を記録
-with open(file_name, mode='a') as f:
-    f.write("simulationstart\n")
 
 # 列名をCSVファイルに追加
 results_df.to_csv(file_name, mode='a', header=True, index=False)
@@ -37,7 +34,7 @@ df1 = df1[1:]
 lambdas = np.arange(1, 21)
 times = df1.columns.tolist()
 all_f_lambda_abs = []
-all_top_3_lambdas = []
+all_top_20_lambdas = []
 
 # Laplacianの作成と計算
 n = 20
@@ -64,19 +61,16 @@ for column_name in df1.columns:
     F_lambda_abs_values = np.abs(F_lambda[:20])
     all_f_lambda_abs.append(F_lambda_abs_values)
 
-    top_3_indices = np.argsort(F_lambda_abs_values)[-3:][::-1]
-    all_top_3_lambdas.append(top_3_indices + 1)
+    top_20_indices = np.argsort(F_lambda_abs_values)[-20:][::-1]
+    all_top_20_lambdas.append(top_20_indices + 1)
 
     row = [column_name, average_speed_data[df1.columns.get_loc(column_name)]]
-    row.extend(top_3_indices + 1)
-    row.extend(F_lambda_abs_values[top_3_indices])
+    row.extend(top_20_indices + 1)
+    row.extend(F_lambda_abs_values[top_20_indices])
     results_df.loc[len(results_df)] = row
 
 # データをCSVファイルに追加
 results_df.to_csv(file_name, mode='a', header=False, index=False)
 
-# シミュレーションの終了を記録
-with open(file_name, mode='a') as f:
-    f.write("simulationend\n")
 
 print(f"CSV file '{file_name}' has been updated")
