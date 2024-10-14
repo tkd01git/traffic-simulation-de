@@ -79,7 +79,7 @@ def column_to_letter(column_index):
     return letter
 
 # ファイルパス
-file_path = "C://Users//YuheiTakada//Downloads//data (54).xlsx"
+file_path = "C://Users//YuheiTakada//Downloads//data (67).xlsx"
 
 # 速度データの処理
 speed_combined_data = process_detector_data(file_path, 2)
