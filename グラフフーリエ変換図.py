@@ -93,10 +93,10 @@ def main(file_path, sheet_column_pairs, eigenvalue_range=(None, None)):
 
 # 実行部分
 if __name__ == "__main__":
-    file_path = 'C://Users//YuheiTakada//Downloads//0922simulation.xlsx'
+    file_path = 'C://Users//YuheiTakada//Downloads//prodata.xlsx'
     sheet_column_pairs = [(f'Sheet1', col) for col in ['AI', 'AJ', 'AK', 'AL', 'AM', 'AN', 'AO', 'AP', 
                                                          'AQ', 'AR', 'AS', 'AT', 'AU', 'AV', 'AW', 
                                                          'AX', 'AY', 'AZ', 'BA', 'BB', 'BC', 'BD', 
                                                          'BE', 'BF', 'BG', 'BH', 'BI', 'BJ']]
-    eigenvalue_range = (1.4, 1.6)  # 固有値の範囲を指定
+    eigenvalue_range = (0, 2)  # 固有値の範囲を指定
     main(file_path, sheet_column_pairs, eigenvalue_range)

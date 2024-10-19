@@ -1,6 +1,7 @@
 import pandas as pd
 import openpyxl
 import re
+import os
 
 def process_detector_data(file_path, speed_column_index):
     # Excelファイルからすべてのデータを読み込む
@@ -79,7 +80,7 @@ def column_to_letter(column_index):
     return letter
 
 # ファイルパス
-file_path = "C://Users//YuheiTakada//Downloads//data (67).xlsx"
+file_path = "C://Users//YuheiTakada//Downloads//data (39).xlsx"
 
 # 速度データの処理
 speed_combined_data = process_detector_data(file_path, 2)
@@ -134,3 +135,4 @@ with pd.ExcelWriter("prodata.xlsx", engine='openpyxl', mode='w') as writer:
     sheet2_data.to_excel(writer, sheet_name="Sheet2", index=False, header=False)
 
 print("Data has been successfully written to 'prodata.xlsx'.")
+
