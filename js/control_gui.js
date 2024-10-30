@@ -482,7 +482,7 @@ function setSlider(slider, sliderHTMLval, value, commaDigits, str_units){
 
 // timewarp slider
 
-var timewarp=6;
+var timewarp=1;
 var slider_timewarp,slider_timewarpVal;
 if(document.getElementById("slider_timewarp")!==null){
     slider_timewarp = document.getElementById("slider_timewarp");
@@ -1164,48 +1164,12 @@ function performDownload() {
           XLSX.writeFile(wb, filename);
 
           console.log("Excel file saved as:", filename);
-
-          // Pythonスクリプトを呼び出して処理済みファイルを生成
-          runPythonScript(filename, 'prodata.xlsx');
+          
       } catch (error) {
           console.error("An error occurred while writing all detectors to Excel:", error);
       }
   });
 }
-
-function runPythonScript(inputFilename, outputFilename) {
-  console.log("Running Python script..."); // スクリプトの開始を確認
-
-    fetch('http://localhost:5000/run-script', { // サーバーのURLが正しいか確認
-      method: 'POST',
-      headers: {
-          'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ inputFilename: inputFilename, outputFilename: outputFilename }),
-  })
-
-  .then(response => {
-      console.log("Received response from server:", response); // サーバーからのレスポンスを確認
-      if (!response.ok) {
-          throw new Error('Network response was not ok');
-      }
-      return response.json();
-  })
-  .then(data => {
-      console.log("Python script executed successfully:", data); // スクリプトが成功した場合の確認
-
-      // 処理が完了したら、ブラウザにダウンロードリンクを更新
-      const link = document.createElement('a');
-      link.href = outputFilename;
-      link.download = outputFilename;
-      link.innerHTML = 'Download processed data (prodata.xlsx)';
-      document.body.appendChild(link);
-  })
-  .catch(error => {
-      console.error("Error running Python script:", error); // エラー内容の詳細を表示
-  });
-}
-
 
 
 

@@ -80,9 +80,9 @@ console.log("\nnew aggregation:",
 
 stationaryDetector.prototype.updateExportString=function(){
 
-var rest=time/this.dtAggr-Math.floor((time+0.0001)/this.dtAggr);
+var rest=time/this.dtAggr-Math.floor((time+0.01)/this.dtAggr);
 
-if(rest<dt-0.0001){
+if(rest<dt-0.01){
   var flowStr=Math.round(3600*this.historyFlow[this.iAggr])
   var speedStr=((this.historyFlow[this.iAggr]>0)
     ? Math.round(3.6*this.historySpeed[this.iAggr])
