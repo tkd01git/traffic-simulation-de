@@ -1148,17 +1148,20 @@ function performDownload() {
                   const time = row[0];
                   const flow = row[1];
                   const speed = row[2];
+                  const numStr = row[3]; 
 
                   ws['A' + rowIndex] = { v: time };
                   ws['B' + rowIndex] = { v: flow };
                   ws['C' + rowIndex] = { v: speed };
+                  ws['D' + rowIndex] = { v: numStr };
+                  ; // 4列目に追加
                   rowIndex++;
               });
 
               rowIndex++;
           });
 
-          ws['!ref'] = `A1:C${rowIndex - 1}`;
+          ws['!ref'] = `A1:D${rowIndex - 1}`; // 参照範囲をE列まで拡張
           XLSX.utils.book_append_sheet(wb, ws, 'sheet1');
           const filename = 'data.xlsx';
           XLSX.writeFile(wb, filename);
@@ -1170,6 +1173,7 @@ function performDownload() {
       }
   });
 }
+
 
 
 

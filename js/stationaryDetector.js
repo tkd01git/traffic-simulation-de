@@ -42,56 +42,62 @@ this.u=road.roadLen;
 ? this.road.findLeaderAt(this.u) : this.road.findFollowerAt(this.u);
 }
 
-
-stationaryDetector.prototype.update=function(time,dt){
-  var vehNear=(this.u<0.5*this.road.roadLen) 
-? this.road.findLeaderAt(this.u) : this.road.findFollowerAt(this.u);
-  if(vehNear.id != this.vehNearOld.id){
-      // if desired, add single-vehicle data record here
-if(false){
-    console.log("stationaryDetector.update: new single-veh",
-    " t=",time," lane=",i," vehID=",vehNear.id);
-}
-this.vehNearOld=vehNear;
-      this.vehCount++;
-this.speedSum += vehNear.speed;
-  }
-
-
-  if(time>=this.iAggr*this.dtAggr+this.dtAggr){
-    this.iAggr++;
-    this.historyFlow[this.iAggr]=this.vehCount/this.dtAggr;
-    this.historySpeed[this.iAggr]=this.speedSum/this.vehCount;
-    this.vehCount=0;
-    this.speedSum=0;
-
-    if(downloadActive){this.updateExportString();}
-    
-    if(false){
-console.log("\nnew aggregation:",
-      " this.historyFlow[",this.iAggr,"]=",
-      this.historyFlow[this.iAggr],
-      " this.historySpeed[",this.iAggr,"]=",
-      this.historySpeed[this.iAggr]);
+// 新しい計測用関数を追加
+stationaryDetector.prototype.countVehiclesInRange = function(road, uMin, uMax) {
+  let count = 0;
+  for (let i = 0; i < road.veh.length; i++) {
+    let vehicle = road.veh[i];
+    if (vehicle.u >= uMin && vehicle.u <= uMax) {
+      count++;
     }
   }
-}
+  return count;
+};
+
+stationaryDetector.prototype.update = function(time, dt) {
+  var vehNear = (this.u < 0.5 * this.road.roadLen)
+      ? this.road.findLeaderAt(this.u) 
+      : this.road.findFollowerAt(this.u);
+
+  if (vehNear.id !== this.vehNearOld.id) {
+      this.vehNearOld = vehNear;
+      this.vehCount++;
+      this.speedSum += vehNear.speed;
+  }
+
+  if (time >= this.iAggr * this.dtAggr + this.dtAggr) {
+      this.iAggr++;
+      this.historyFlow[this.iAggr] = this.vehCount / this.dtAggr;
+      this.historySpeed[this.iAggr] = (this.vehCount > 0) ? (this.speedSum / this.vehCount) : 0;
+      this.vehCount = 0;
+      this.speedSum = 0;
+
+      if (downloadActive) {
+          this.updateExportString();
+      }
+  }
+};
 
 
-stationaryDetector.prototype.updateExportString=function(){
+stationaryDetector.prototype.updateExportString = function() {
+  var rest = time / this.dtAggr - Math.floor((time + 0.01) / this.dtAggr);
 
-var rest=time/this.dtAggr-Math.floor((time+0.01)/this.dtAggr);
+  if (rest < dt - 0.01) {
+      var flowStr = Math.round(3600 * this.historyFlow[this.iAggr]);
+      var speedStr = (this.historyFlow[this.iAggr] > 0)
+          ? Math.round(3.6 * this.historySpeed[this.iAggr])
+          : "--";
 
-if(rest<dt-0.01){
-  var flowStr=Math.round(3600*this.historyFlow[this.iAggr])
-  var speedStr=((this.historyFlow[this.iAggr]>0)
-    ? Math.round(3.6*this.historySpeed[this.iAggr])
-    : "--");
-  this.exportString=this.exportString+"\n"+time.toFixed(0)
-    +"\t\t"+flowStr+"\t\t"+speedStr;
-  
-}
-}
+      // numStrの計算
+      let vehicleCountInRange = this.countVehiclesInRange(this.road, 1200, 1600);
+      var numStr = Math.round(vehicleCountInRange);
+
+      // exportStringへの追加
+      this.exportString = this.exportString + "\n" + time.toFixed(0)
+          + "\t\t" + flowStr + "\t\t" + speedStr + "\t\t" + numStr;
+  }
+};
+
 
 
 stationaryDetector.prototype.writeToFile = function(filename) {

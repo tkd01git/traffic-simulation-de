@@ -42,7 +42,7 @@ console.log(Math.random());          // Always 0.9364577392619949 with 42
 // constants
 //#############################################################
 
-const REFSIZE=250;
+const REFSIZE=500;
 const REFSIZE_SMARTPHONE=150;
 
 //#############################################################
@@ -83,7 +83,7 @@ var driver_varcoeff=0.15; //v0 and a coeff of variation (of "agility")
 
 
 
-qIn=4600./3600; 
+qIn=4600/3600; 
 commaDigits=0;
 setSlider(slider_qIn, slider_qInVal, 3600*qIn, commaDigits, "veh/h");
 
@@ -159,7 +159,7 @@ var isSmartphone=mqSmartphone();
 
 var refSizePhys=(isSmartphone) ? REFSIZE_SMARTPHONE : REFSIZE;
 
-var critAspectRatio=120./95.; // from css file width/height of #contents
+var critAspectRatio=120./80.; // from css file width/height of #contents
                               // the higher, the longer sim window
                          // must be the same as in css:
                          // max-aspect-ratio: 24/19 etc
@@ -390,14 +390,16 @@ ramp.veh.unshift(virtualStandingVeh);
 
 
 var detectors = [];
-var startCoordinate = 390; // 初期座標
-var increment = 15; // 増加値
-var numDetectors = 20; // 検出器の数
+var startCoordinate = 1200; // 初期座標
+var increment = 10; // 増加値
+var numDetectors = 41; // 検出器の数
 
-for (var i = 0; i < numDetectors; i++) {
-    var coordinate = startCoordinate + (i * increment); // 各検出器の座標
-    detectors[i] = new stationaryDetector(mainroad, coordinate, 1); // 検出器を配置
+for (var i = 0; i < numDetectors; i++) { // numDetectors = 41 と仮定
+    var coordinate = startCoordinate + (i * increment); // 各検知器の座標
+    detectors[i] = new stationaryDetector(mainroad, coordinate, 1); // 検知器を配置
 }
+
+
 
 
 
@@ -818,8 +820,12 @@ function drawSim() {
 
   displayTime(time,textsize);
   for(var iDet=0; iDet<detectors.length; iDet++){
-	detectors[iDet].display(textsize);
+	//detectors[iDet].display(textsize);
   }
+
+  // rampの検知器を表示
+//singleRampDetector.display(textsize);
+
 
   // (6a) show scale info
 
@@ -903,4 +909,3 @@ showInfo();//!!!! change to showInfoString() plus strings defined inline or as e
 
 
 var myRun=setInterval(main_loop, 1000/fps);
-

@@ -25,7 +25,7 @@ def compute_normalized_laplacian(L, D):
     return L_normalized
 
 # ノード数
-N = 20
+N = 41
 
 # 隣接行列を作成し、ラプラシアン行列と正規化ラプラシアンを計算
 A = create_adjacency_matrix(N)
@@ -35,20 +35,29 @@ L_normalized = compute_normalized_laplacian(L, D)
 # ラプラシアンの固有値と固有ベクトルを計算
 eigenvalues, eigenvectors = eigh(L_normalized)
 
-# グラフのレイアウトを直線上に設定
-pos = {i: (i, 0) for i in range(N)}
+# グラフのレイアウトを直線上に設定（ノード番号を1からNまで振る）
+pos = {i: (i + 1, 0) for i in range(N)}
 
 # 描画設定
-fig, axes = plt.subplots(4, 5, figsize=(20, 15))  # 4行5列のサブプロット
+fig, axes = plt.subplots(1, 3, figsize=(18, 6))  # 1行3列のサブプロット配置
 
-for idx in range(N):
-    ax = axes[idx // 5, idx % 5]  # 4x5のサブプロットの位置指定
+for idx in range(3):  # 固有ベクトル1, 2, 3のみ描画
+    ax = axes[idx]
 
     # 現在の固有ベクトル
     fiedler_vector = eigenvectors[:, idx]
 
     # ノードの描画
-    nx.draw(nx.path_graph(N), pos, with_labels=True, node_color='lightblue', node_size=500, font_size=10, ax=ax)
+    nx.draw(
+        nx.path_graph(N), 
+        pos, 
+        with_labels=True, 
+        labels={i: i + 1 for i in [0, 20, 40]},  # 1, 21, 41 のみ表示
+        node_color='lightblue', 
+        node_size=500, 
+        font_size=10, 
+        ax=ax
+    )
 
     # 固有ベクトルの各成分をノードに対応させて可視化
     for i in range(N):
@@ -61,6 +70,6 @@ for idx in range(N):
     ax.set_title(f'Eigenvector {idx+1}')
 
 # 全体のラベルを設定
-plt.suptitle('Laplacian Eigenvectors Visualization (N=20)', fontsize=20)
+plt.suptitle('Laplacian Eigenvectors Visualization (N=41, Top 3 Eigenvectors)', fontsize=16)
 plt.tight_layout(rect=[0, 0.03, 1, 0.95])  # タイトルが重ならないように調整
 plt.show()
