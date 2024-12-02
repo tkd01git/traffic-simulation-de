@@ -4,7 +4,7 @@ import re
 import os
 
 # ファイルパス
-file_path = "C://Users//Ytakada//Downloads//data (6).xlsx"
+file_path = "C://Users//Ytakada//Downloads//data (17).xlsx"
 
 def process_detector_data(file_path, speed_column_index):
     # Excelファイルからすべてのデータを読み込む

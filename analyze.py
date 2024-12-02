@@ -3,11 +3,16 @@ import openpyxl
 import re
 import os
 
-# ファイルパス
-file_path = "C://Users//Ytakada//Downloads//data (8).xlsx"
 
-# Excelファイル名
-excel_file_name = "006.xlsx"
+# 使用するデータファイル
+file_path = "C://Users//Yuheitakada//Downloads//data (32).xlsx"
+
+# データ記録エクセルファイル
+EXCEL_FILE_NAME = "prodata700.xlsx"  # 任意の名前に変更可能
+
+# 最終編集先Excelファイル
+excel_file_name = "700.xlsx"
+
 
 def process_detector_data(file_path, speed_column_index):
     # Excelファイルからすべてのデータを読み込む
@@ -93,108 +98,39 @@ speed_combined_data = process_detector_data(file_path, 2)
 flow_combined_data = process_detector_data(file_path, 1)
 
 # エクセルにデータを書き込む
-with pd.ExcelWriter("prodata.xlsx", engine='openpyxl') as writer:
+with pd.ExcelWriter(EXCEL_FILE_NAME, engine='openpyxl') as writer:
     if not speed_combined_data.empty:
         speed_combined_data.to_excel(writer, sheet_name="Sheet1", index=False, header=False)
     if not flow_combined_data.empty:
         flow_combined_data.to_excel(writer, sheet_name="Sheet2", index=False, header=False)
 
 # Sheet2のデータを処理
-sheet2_data = pd.read_excel("prodata.xlsx", sheet_name="Sheet2", header=None, engine='openpyxl')
+sheet2_data = pd.read_excel(EXCEL_FILE_NAME, sheet_name="Sheet2", header=None, engine='openpyxl')
 
 # Sheet1のデータを再度読み込む
-sheet1_data = pd.read_excel("prodata.xlsx", sheet_name="Sheet1", header=None, engine='openpyxl')
+sheet1_data = pd.read_excel(EXCEL_FILE_NAME, sheet_name="Sheet1", header=None, engine='openpyxl')
 
 # 必要な行数を確認し、不足している場合は行を追加
-required_rows = 60
+required_rows = 100
 if sheet2_data.shape[0] < required_rows:
     additional_rows = required_rows - sheet2_data.shape[0]
     sheet2_data = pd.concat([sheet2_data, pd.DataFrame([[None] * sheet2_data.shape[1]] * additional_rows, columns=sheet2_data.columns)], ignore_index=True)
 
-# 各列の2〜42行目の値を掛け合わせてその列の総和を43行目に記入
-for col in range(sheet1_data.shape[1]):
-    product_sum = (sheet1_data.iloc[1:42, col] * sheet2_data.iloc[1:42, col]).sum()
-    sheet2_data.iloc[42, col] = product_sum
-
-# 各列の2〜42行目の総和を計算して44行目に記入
-for col in range(sheet2_data.shape[1]):
-    col_sum = sheet2_data.iloc[1:42, col].sum()
-    sheet2_data.iloc[43, col] = col_sum
-
-# 各列の43行目を44行目で割り、小数第2位で四捨五入して45行目に記入
-for col in range(sheet2_data.shape[1]):
-    value_23 = sheet2_data.iloc[42, col]
-    value_24 = sheet2_data.iloc[43, col]
-    
-    if pd.notna(value_23) and pd.notna(value_24) and value_24 != 0:
-        result = round(value_23 / value_24, 2)
-    else:
-        result = None
-    
-    sheet2_data.iloc[44, col] = result
-    
-# 各列の2~21行目で、sheet1_dataとsheet2_dataのセルを掛け合わせて、その総和を46行目に書き込む
-for col in range(sheet1_data.shape[1]):
-    product_sum = (sheet1_data.iloc[1:22, col] * sheet2_data.iloc[1:22, col]).sum()
-    sheet2_data.iloc[45, col] = product_sum
-
-# 各列のsheet2_dataの2~21行目の総和を47行目に書き込む
-for col in range(sheet2_data.shape[1]):
-    col_sum = sheet2_data.iloc[1:22, col].sum()
-    sheet2_data.iloc[46, col] = col_sum
-
-# 各列の46行目を47行目で割り、小数第2位で四捨五入して48行目に書き込む
-for col in range(sheet2_data.shape[1]):
-    value_25 = sheet2_data.iloc[45, col]
-    value_26 = sheet2_data.iloc[46, col]
-    
-    if pd.notna(value_25) and pd.notna(value_26) and value_26 != 0:
-        result = round(value_25 / value_26, 2)
-    else:
-        result = None
-    
-    sheet2_data.iloc[47, col] = result
-    
-# 各列の22~41行目で、sheet1_dataとsheet2_dataのセルを掛け合わせて、その総和を49行目に書き込む
-for col in range(sheet1_data.shape[1]):
-    product_sum = (sheet1_data.iloc[22:42, col] * sheet2_data.iloc[22:42, col]).sum()
-    sheet2_data.iloc[48, col] = product_sum
-
-# 各列のsheet2_dataの22~41行目の総和を50行目に書き込む
-for col in range(sheet2_data.shape[1]):
-    col_sum = sheet2_data.iloc[22:41, col].sum()
-    sheet2_data.iloc[49, col] = col_sum
-
-# 各列の49行目を50行目で割り、小数第2位で四捨五入して51行目に書き込む
-for col in range(sheet2_data.shape[1]):
-    value_28 = sheet2_data.iloc[48, col]
-    value_29 = sheet2_data.iloc[49, col]
-    
-    if pd.notna(value_28) and pd.notna(value_29) and value_29 != 0:
-        result = round(value_28 / value_29, 2)
-    else:
-        result = None
-    sheet2_data.iloc[50, col] = result
-
-
-# 追加：4列目のデータをSheet2の52行目に書き込む
+# 追加：4列目のデータをSheet2の100行目に書き込む
 df_additional_data = pd.read_excel(file_path, sheet_name="sheet1", engine='openpyxl')
 if df_additional_data.shape[1] >= 4:
-    sheet2_data.iloc[51, :] = df_additional_data.iloc[:, 3].values[:sheet2_data.shape[1]]
+    sheet2_data.iloc[99, :] = df_additional_data.iloc[:, 3].values[:sheet2_data.shape[1]]
 
-
-    
-    
 # 最後に全てのデータを書き込む
-with pd.ExcelWriter("prodata.xlsx", engine='openpyxl', mode='w') as writer:
+with pd.ExcelWriter(EXCEL_FILE_NAME, engine='openpyxl', mode='w') as writer:
     sheet1_data.to_excel(writer, sheet_name="Sheet1", index=False, header=False)
     sheet2_data.to_excel(writer, sheet_name="Sheet2", index=False, header=False)
 
-print("Data has been successfully written to 'prodata.xlsx'.")
+print(f"Data has been successfully written to '{EXCEL_FILE_NAME}'.")
 
 
 # prodata.xlsxを読み込む
-workbook = openpyxl.load_workbook("prodata.xlsx")
+workbook = openpyxl.load_workbook("prodata700.xlsx")
 sheet = workbook["Sheet1"]  # Sheet1を対象とする
 
 detector_col_index = None
@@ -215,44 +151,37 @@ if detector_col_index is not None:
         print("2つ前の列は存在しません。")
 else:
     print("Detector1が見つかりません。")
-
 import pandas as pd
 import numpy as np
 from scipy.linalg import eigh
 
-# Excelファイルの読み込みと前処理
-file_path = "C://Users//Ytakada//Downloads//traffic-simulation-de//prodata.xlsx"
+file_path = "C://Users//YuheiTakada//OneDrive//デスクトップ//traffic-simulation-de//prodata1000.xlsx"
 start_col = 'A'
 end_col = two_columns_before_letter
 sheet_name1 = 'Sheet1'
 sheet_name2 = 'Sheet2'
 
-
-
 # Sheet1とSheet2のデータの取得
 df1 = pd.read_excel(file_path, sheet_name=sheet_name1, usecols=f'{start_col}:{end_col}', header=None)
 df2 = pd.read_excel(file_path, sheet_name=sheet_name2, usecols=f'{start_col}:{end_col}', header=None)
 
-# 各時刻の平均速度データと車両数データを取得
+# 新しいデータフレームの作成
+df3 = pd.read_excel(file_path, sheet_name=sheet_name1, usecols=f'{start_col}:{end_col}', header=None, skiprows=1, nrows=20)  # 2~31行目
+df4 = pd.read_excel(file_path, sheet_name=sheet_name1, usecols=f'{start_col}:{end_col}', header=None, skiprows=4, nrows=20)  # 5~34行目
+df5 = pd.read_excel(file_path, sheet_name=sheet_name1, usecols=f'{start_col}:{end_col}', header=None, skiprows=7, nrows=20)  # 8~37行目
+df6 = pd.read_excel(file_path, sheet_name=sheet_name1, usecols=f'{start_col}:{end_col}', header=None, skiprows=10, nrows=20) # 11~40行目
+df7 = pd.read_excel(file_path, sheet_name=sheet_name1, usecols=f'{start_col}:{end_col}', header=None, skiprows=13, nrows=20)  # 5~34行目
+df8 = pd.read_excel(file_path, sheet_name=sheet_name1, usecols=f'{start_col}:{end_col}', header=None, skiprows=16, nrows=20)  # 5~34行目
+df9 = pd.read_excel(file_path, sheet_name=sheet_name1, usecols=f'{start_col}:{end_col}', header=None, skiprows=19, nrows=20)  # 5~34行目
+df10 = pd.read_excel(file_path, sheet_name=sheet_name1, usecols=f'{start_col}:{end_col}', header=None, skiprows=22, nrows=20)  # 5~34行目
+
+
 time_data = df1.iloc[0].values.flatten()
-average_speed_data = df2.iloc[44].values.flatten()
-avespeed1_20 = df2.iloc[47].values.flatten()
-avespeed22_41 = df2.iloc[50].values.flatten()
 flow_data = df2.iloc[21].values.flatten() / 3600  # 車両数データの取得
-dens_data = df2.iloc[51].values.flatten()
+dens_data = df2.iloc[99].values.flatten()
 
-# 列名を指定の順に設定
-results_df = pd.DataFrame(columns=[
-    'Time', 'Average Speed', 
-    'Avespeed1_10', 'Avespeed11_20',
-    'flow', 'dens',
-    'Flow Sum 19 Points',  # 新しい列を追加
-    'differential',
-    *[f'F(λ_{i})' for i in range(1, 4)]
-])
-
-# Laplacianの作成と計算
-n = 41
+# Laplacianの作成
+n = 20
 A = np.zeros((n, n))
 for i in range(n - 1):
     A[i, i + 1] = 1
@@ -261,44 +190,69 @@ L = np.diag(np.sum(A, axis=1)) - A
 L_normalized = np.dot(np.linalg.inv(np.sqrt(np.diag(np.sum(A, axis=1)))), 
                       np.dot(L, np.linalg.inv(np.sqrt(np.diag(np.sum(A, axis=1))))))
 
-# 各列ごとにF(λ)を計算
-for column_name in df1.columns:
-    speed_data = df1[column_name].iloc[1:42].values.flatten()
-    eigenvalues, eigenvectors = eigh(L_normalized, eigvals_only=False)
+# F(λ_2) を計算する関数
+def calculate_F_lambda_2(df):
+    results = []
+    for column in df.columns:
+        speed_data = df[column].values.flatten()
+        eigenvalues, eigenvectors = eigh(L_normalized, eigvals_only=False)
 
-    sorted_indices = np.argsort(eigenvalues)
-    sorted_eigenvectors = eigenvectors[:, sorted_indices]
+        sorted_indices = np.argsort(eigenvalues)
+        sorted_eigenvectors = eigenvectors[:, sorted_indices]
 
-    F_lambda = np.zeros(sorted_eigenvectors.shape[1], dtype=complex)
-    for i in range(sorted_eigenvectors.shape[1]):
-        u_lambda_i = sorted_eigenvectors[:, i]
-        F_lambda[i] = sum(speed_data * np.conj(u_lambda_i))  # 絶対値を取らずに計算
+        F_lambda = np.zeros(sorted_eigenvectors.shape[1], dtype=complex)
+        for i in range(sorted_eigenvectors.shape[1]):
+            u_lambda_i = sorted_eigenvectors[:, i]
+            F_lambda[i] = sum(speed_data * np.conj(u_lambda_i))
 
-    # データフレームに書き込む行を作成
-    col_index = df1.columns.get_loc(column_name)
-    row = [
-        time_data[col_index],  # Time
-        average_speed_data[col_index],  # Average Speed
-        avespeed1_20[col_index],  # Avespeed1~20
-        avespeed22_41[col_index],  # Avespeed22~41
-        flow_data[col_index],  # carnum
-        dens_data[col_index],  # dens
-        0,  # Flow Sum 19 Points は後で計算するため一旦0を挿入
-        0,
-        *[F_lambda[i].real for i in range(3)]  # 1~41のF(λ)をすべて出力
-    ]
-    results_df.loc[len(results_df)] = row
+        # Fλ_2 (インデックス1) の実部を取得
+        results.append(F_lambda[1].real)
+    return results
 
-# Flow Sum 19 Points の計算を後から行う
-for i in range(len(results_df)):
-    start_index = max(0, i - 8)
-    end_index = min(len(results_df), i + 9)
-    flow_sum_19_points = sum(results_df.loc[start_index:end_index, 'flow'])
-    results_df.at[i, 'Flow Sum 19 Points'] = flow_sum_19_points
+# Fλ_2 の計算
+frambda2_df3 = calculate_F_lambda_2(df3)
+frambda2_df4 = calculate_F_lambda_2(df4)
+frambda2_df5 = calculate_F_lambda_2(df5)
+frambda2_df6 = calculate_F_lambda_2(df6)
+frambda2_df7 = calculate_F_lambda_2(df7)
+frambda2_df8 = calculate_F_lambda_2(df8)
+frambda2_df9 = calculate_F_lambda_2(df9)
+frambda2_df10 = calculate_F_lambda_2(df10)
 
+# 出力用のDataFrameを作成
+output_data = {
+    'Time': list(time_data),
+    'flow': list(flow_data),
+    'dens': list(dens_data),
+    'Flow Sum 19 Points': [''] * len(time_data),  # 空白のまま作成
+    'Franbda2_of_df3': frambda2_df3,
+    'Franbda2_of_df4': frambda2_df4,
+    'Franbda2_of_df5': frambda2_df5,
+    'Franbda2_of_df6': frambda2_df6,
+    'Franbda2_of_df7': frambda2_df7,
+    'Franbda2_of_df8': frambda2_df8,
+    'Franbda2_of_df9': frambda2_df9,
+    'Franbda2_of_df10': frambda2_df10,
+}
 
-# DataFrameをExcelに保存
-with pd.ExcelWriter(excel_file_name, engine='openpyxl') as writer:
-    results_df.to_excel(writer, sheet_name='Results', index=False)
+# 長さを調整してDataFrameに変換
+max_len = max(len(time_data), len(frambda2_df3), len(frambda2_df4), len(frambda2_df5), len(frambda2_df6))
+for key in output_data.keys():
+    if len(output_data[key]) < max_len:
+        output_data[key].extend([''] * (max_len - len(output_data[key])))
 
-print(f"Excel file '{excel_file_name}' has been created.")
+results_df = pd.DataFrame(output_data)
+
+# Excelファイルにデータを書き込む
+output_file = excel_file_name
+with pd.ExcelWriter(output_file, mode='w') as writer:
+    results_df.to_excel(writer, index=False, sheet_name='Results')
+
+# Flow Sum 19 Points の計算を行い、Excelファイルを更新
+results_df['Flow Sum 19 Points'] = results_df['flow'].rolling(window=19, min_periods=1, center=True).sum()
+
+# Excelファイルに再度書き込む
+with pd.ExcelWriter(output_file, mode='w') as writer:
+    results_df.to_excel(writer, index=False, sheet_name='Results')
+
+print(f"{output_file}' が保存されました。")
