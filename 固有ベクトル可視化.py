@@ -25,7 +25,7 @@ def compute_normalized_laplacian(L, D):
     return L_normalized
 
 # ノード数
-N = 30
+N = 20
 
 # 隣接行列を作成し、ラプラシアン行列と正規化ラプラシアンを計算
 A = create_adjacency_matrix(N)
@@ -35,24 +35,28 @@ L_normalized = compute_normalized_laplacian(L, D)
 # ラプラシアンの固有値と固有ベクトルを計算
 eigenvalues, eigenvectors = eigh(L_normalized)
 
-# グラフのレイアウトを直線上に設定（ノード番号を1からNまで振る）
+# グラフのレイアウトを直線上に設定（ノード番号を0からN-1まで振る）
 pos = {i: (i + 1, 0) for i in range(N)}
 
-# 描画設定
-fig, axes = plt.subplots(1, 3, figsize=(18, 6))  # 1行3列のサブプロット配置
+# サブプロットの行と列を計算（5列で調整）
+cols = 5
+rows = (N + cols - 1) // cols
 
-for idx in range(3):  # 固有ベクトル1, 2, 3のみ描画
+fig, axes = plt.subplots(rows, cols, figsize=(15, 3 * rows))
+axes = axes.flatten()
+
+for idx in range(N):
     ax = axes[idx]
 
     # 現在の固有ベクトル
-    fiedler_vector = eigenvectors[:, idx]
+    eigenvector = eigenvectors[:, idx]
 
     # ノードの描画
     nx.draw(
         nx.path_graph(N), 
         pos, 
         with_labels=True, 
-        labels={i: i + 1 for i in [0, 20, 40]},  # 1, 21, 41 のみ表示
+        labels={i: i + 1 for i in range(N)},  # ノードラベルを表示
         node_color='lightblue', 
         node_size=500, 
         font_size=10, 
@@ -63,13 +67,17 @@ for idx in range(3):  # 固有ベクトル1, 2, 3のみ描画
     for i in range(N):
         # ノード位置
         x, y = pos[i]
-        # 信号の強さに応じて矢印を描画（上：正、下：負）
-        ax.arrow(x, y, 0, fiedler_vector[i], head_width=0.1, head_length=0.1, fc='r', ec='r')
+        # 矢印の描画（上：正、下：負）
+        ax.arrow(x, y, 0, eigenvector[i], head_width=0.2, head_length=0.1, fc='r', ec='r')
 
     # ラベルをつける
-    ax.set_title(f'Eigenvector {idx+1}')
+    ax.set_title(f'Eigenvector {idx + 1}')
+
+# 不使用のサブプロットを非表示にする
+for idx in range(N, len(axes)):
+    axes[idx].axis('off')
 
 # 全体のラベルを設定
-plt.suptitle('Laplacian Eigenvectors Visualization (N=41, Top 3 Eigenvectors)', fontsize=16)
+plt.suptitle('Laplacian Eigenvectors Visualization (N=20)', fontsize=16)
 plt.tight_layout(rect=[0, 0.03, 1, 0.95])  # タイトルが重ならないように調整
 plt.show()

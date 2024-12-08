@@ -12,10 +12,10 @@ def column_to_letter(column_index):
     return letter
 
 # 最終編集先Excelファイル
-output_file = "λrank2_1000.xlsx"
+output_file = "λrank2_600.xlsx"
 
 # prodata.xlsxを読み込む
-workbook = openpyxl.load_workbook("prodata1000.xlsx")
+workbook = openpyxl.load_workbook("prodata600.xlsx")
 sheet = workbook["Sheet1"]  # Sheet1を対象とする
 
 detector_col_index = None
@@ -40,7 +40,7 @@ import pandas as pd
 import numpy as np
 from scipy.linalg import eigh
 
-file_path = "C://Users//YuheiTakada//OneDrive//デスクトップ//traffic-simulation-de//prodata1000.xlsx"
+file_path = "C://Users//YuheiTakada//OneDrive//デスクトップ//traffic-simulation-de//prodata600.xlsx"
 start_col = 'A'
 end_col = two_columns_before_letter
 sheet_name1 = 'Sheet1'
