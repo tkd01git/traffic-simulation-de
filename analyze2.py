@@ -12,8 +12,8 @@ def column_to_letter(column_index):
     return letter
 
 # ファイルパス
-file_path = "C://Users//YuheiTakada//OneDrive//デスクトップ//traffic-simulation-de//prodata900.xlsx"
-output_file = "allFrambda20-1s_900.xlsx"
+file_path = "C://Users//YuheiTakada//OneDrive//デスクトップ//traffic-simulation-de//prodatas700.xlsx"
+output_file = "allFrambda20-4s_700.xlsx"
 
 # Excelファイルを読み込む
 workbook = openpyxl.load_workbook(file_path)

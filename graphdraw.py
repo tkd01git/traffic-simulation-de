@@ -5,7 +5,7 @@ import os
 # 処理するファイル名のリストを作成
 file_numbers = [500, 600, 700, 800, 900]
 base_path = "C://Users//YuheiTakada//OneDrive//デスクトップ//traffic-simulation-de"
-file_names = [f"allFrambda20-2s_{num}.xlsx" for num in file_numbers]
+file_names = [f"allFrambda20-4s_{num}.xlsx" for num in file_numbers]
 
 # 処理するシート名と対応するグラフタイトル
 sheet_titles = {
@@ -23,9 +23,9 @@ sheet_titles = {
 red_lines_dict = {
     500: [],  # ファイル 500 用の赤線時刻
     600: [],  # ファイル 600 用の赤線時刻
-    700: [],  # ファイル 700 用の赤線時刻
-    800: [351],  # ファイル 800 用の赤線時刻
-    900: [332]   # ファイル 900 用の赤線時刻
+    700: [280],  # ファイル 700 用の赤線時刻
+    800: [232],  # ファイル 800 用の赤線時刻
+    900: [304]   # ファイル 900 用の赤線時刻
 }
 
 # 各ファイルごとに青線を引く特定の時刻を指定
@@ -42,7 +42,7 @@ fig, axes = plt.subplots(nrows=8, ncols=5, figsize=(25, 20), sharex=True, sharey
 fig.subplots_adjust(hspace=0.5, wspace=0.3)
 
 # 全体タイトルを追加
-fig.suptitle('1sdata : F_lambda2 for onramp = 500~900', fontsize=18, y=0.95)
+fig.suptitle('4sdata : F_lambda2 for onramp = 500~900', fontsize=18, y=0.95)
 
 # 凡例の説明を追加
 legend_text = (
