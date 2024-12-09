@@ -5,10 +5,10 @@ import os
 
 
 # 使用するデータファイル
-file_path = "C://Users//Yuheitakada//Downloads//data (51).xlsx"
+file_path = "C://Users//Yuheitakada//Downloads//data (59).xlsx"
 
 # データ記録エクセルファイル
-EXCEL_FILE_NAME = "prodatas900.xlsx"  # 任意の名前に変更可能
+EXCEL_FILE_NAME = "prodata750-5.xlsx"  # 任意の名前に変更可能
 
 
 def process_detector_data(file_path, speed_column_index):

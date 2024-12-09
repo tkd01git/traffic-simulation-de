@@ -3,6 +3,7 @@ import numpy as np
 from scipy.linalg import eigh
 import openpyxl
 
+
 def column_to_letter(column_index):
     """Excelの列番号をアルファベットに変換"""
     letter = ""
@@ -12,8 +13,8 @@ def column_to_letter(column_index):
     return letter
 
 # ファイルパス
-file_path = "C://Users//YuheiTakada//OneDrive//デスクトップ//traffic-simulation-de//prodatas700.xlsx"
-output_file = "allFrambda20-4s_700.xlsx"
+file_path = "C://Users//YuheiTakada//OneDrive//デスクトップ//traffic-simulation-de//prodata750-5.xlsx"
+output_file = "result5.xlsx"
 
 # Excelファイルを読み込む
 workbook = openpyxl.load_workbook(file_path)
@@ -90,7 +91,7 @@ def write_sheet_with_ranks(writer, sheet_name, time_data, flow_data, dens_data, 
         'Time': list(time_data),
         'Flow': list(flow_data),
         'Density': list(dens_data),
-        'Flow Sum 19 Points': list(flow_sum),
+        'traffic volume': list(flow_sum),
     }
     for lambda_index in range(20):
         output_data[f'F_lambda{lambda_index+1}'] = [
@@ -108,7 +109,7 @@ with pd.ExcelWriter(output_file, mode='w') as writer:
         real_parts_list = calculate_F_lambda_real_parts(df)
         flow_sum = (
             pd.Series(flow_data)
-            .rolling(window=20, min_periods=20)
+            .rolling(window=5, min_periods=5)
             .sum()
         )
         write_sheet_with_ranks(writer, sheet_name, time_data, flow_data, dens_data, flow_sum, real_parts_list)

@@ -90,7 +90,7 @@ setSlider(slider_qIn, slider_qInVal, 3600*qIn, commaDigits, "veh/h");
 
 density=0.01; 
 
-var nLanes_main=3;
+var nLanes_main=2;
 var nLanes_rmp=1;
 
 
@@ -396,7 +396,7 @@ var numDetectors = 41; // 検出器の数
 
 for (var i = 0; i < numDetectors; i++) { // numDetectors = 41 と仮定
     var coordinate = startCoordinate + (i * increment); // 各検知器の座標
-    detectors[i] = new stationaryDetector(mainroad, coordinate, 4); // 検知器を配置
+    detectors[i] = new stationaryDetector(mainroad, coordinate, 3); // 検知器を配置
 }
 
 
