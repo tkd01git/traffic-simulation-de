@@ -5,10 +5,10 @@ import os
 
 
 # 使用するデータファイル
-file_path = "C://Users//Yuheitakada//Downloads//data (59).xlsx"
+file_path = "C://Users//Yuheitakada//Downloads//data (82).xlsx"
 
 # データ記録エクセルファイル
-EXCEL_FILE_NAME = "prodata750-5.xlsx"  # 任意の名前に変更可能
+EXCEL_FILE_NAME = "prodata800-13.xlsx"  # 任意の名前に変更可能
 
 
 def process_detector_data(file_path, speed_column_index):
@@ -112,6 +112,28 @@ required_rows = 100
 if sheet2_data.shape[0] < required_rows:
     additional_rows = required_rows - sheet2_data.shape[0]
     sheet2_data = pd.concat([sheet2_data, pd.DataFrame([[None] * sheet2_data.shape[1]] * additional_rows, columns=sheet2_data.columns)], ignore_index=True)
+    
+# 各列の2〜42行目の値を掛け合わせてその列の総和を43行目に記入
+for col in range(sheet1_data.shape[1]):
+    product_sum = (sheet1_data.iloc[1:42, col] * sheet2_data.iloc[1:42, col]).sum()
+    sheet2_data.iloc[42, col] = product_sum
+
+# 各列の2〜42行目の総和を計算して44行目に記入
+for col in range(sheet2_data.shape[1]):
+    col_sum = sheet2_data.iloc[1:42, col].sum()
+    sheet2_data.iloc[43, col] = col_sum
+
+# 各列の43行目を44行目で割り、小数第2位で四捨五入して45行目に記入
+for col in range(sheet2_data.shape[1]):
+    value_23 = sheet2_data.iloc[42, col]
+    value_24 = sheet2_data.iloc[43, col]
+    
+    if pd.notna(value_23) and pd.notna(value_24) and value_24 != 0:
+        result = round(value_23 / value_24, 2)
+    else:
+        result = None
+    
+    sheet2_data.iloc[44, col] = result
 
 # 追加：4列目のデータをSheet2の100行目に書き込む
 df_additional_data = pd.read_excel(file_path, sheet_name="sheet1", engine='openpyxl')

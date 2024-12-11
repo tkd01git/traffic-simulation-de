@@ -13,8 +13,8 @@ def column_to_letter(column_index):
     return letter
 
 # ファイルパス
-file_path = "C://Users//YuheiTakada//OneDrive//デスクトップ//traffic-simulation-de//prodata750-5.xlsx"
-output_file = "result5.xlsx"
+file_path = "C://Users//YuheiTakada//OneDrive//デスクトップ//traffic-simulation-de//prodata800-15.xlsx"
+output_file = "result15.xlsx"
 
 # Excelファイルを読み込む
 workbook = openpyxl.load_workbook(file_path)
@@ -53,7 +53,7 @@ data_frames = [
 ]
 
 time_data = df1.iloc[0].values.flatten()
-flow_data = df2.iloc[41].values.flatten() / 3600
+speed_data = df2.iloc[44].values.flatten()
 dens_data = df2.iloc[99].values.flatten()
 
 # Laplacianの作成
@@ -86,10 +86,10 @@ def calculate_F_lambda_real_parts(df):
         real_parts_list.append(real_parts)
     return real_parts_list
 
-def write_sheet_with_ranks(writer, sheet_name, time_data, flow_data, dens_data, flow_sum, real_parts_list):
+def write_sheet_with_ranks(writer, sheet_name, time_data, speed_data, dens_data, flow_sum, real_parts_list):
     output_data = {
         'Time': list(time_data),
-        'Flow': list(flow_data),
+        'speed': list(speed_data),
         'Density': list(dens_data),
         'traffic volume': list(flow_sum),
     }
@@ -108,10 +108,10 @@ with pd.ExcelWriter(output_file, mode='w') as writer:
     )):
         real_parts_list = calculate_F_lambda_real_parts(df)
         flow_sum = (
-            pd.Series(flow_data)
-            .rolling(window=5, min_periods=5)
+            pd.Series(speed_data)
+            .rolling(window=0, min_periods=0)
             .sum()
         )
-        write_sheet_with_ranks(writer, sheet_name, time_data, flow_data, dens_data, flow_sum, real_parts_list)
+        write_sheet_with_ranks(writer, sheet_name, time_data, speed_data, dens_data, flow_sum, real_parts_list)
 
 print(f"{output_file} が保存されました。")
