@@ -7,7 +7,7 @@ speed_threshold = 50  # スピードの閾値
 
 
 # 処理するファイル名のリスト
-file_numbers = [16,17,18,19,20]
+file_numbers = [100]
 base_path = "C://Users//YuheiTakada//OneDrive//デスクトップ//traffic-simulation-de"
 file_names = [f"λrankresult{num}.xlsx" for num in file_numbers]
 
@@ -85,7 +85,7 @@ for col_idx, file_name in enumerate(file_names):
         ax.axhline(y=0, color='black', linewidth=2)
     
 # 全体のタイトルを追加
-fig.suptitle("4s-500veh/h : rank of F_lambda2", fontsize=16)
+fig.suptitle("3s-500veh/h : rank of F_lambda2", fontsize=16)
 
 # 注意書きを追加
 plt.figtext(0.5, 0.01, "Red line = speed below 50 km/h.", ha="center", fontsize=12, color="gray")

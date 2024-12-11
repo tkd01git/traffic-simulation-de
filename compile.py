@@ -5,8 +5,8 @@ import openpyxl
 import os
 
 # 編集対象ファイルのリストを作成
-file_indices = ["12", "13"] # 必要に応じて変更
-input_files = [f"prodata800-{x}.xlsx" for x in file_indices]
+file_indices = ["100"] # 必要に応じて変更
+input_files = [f"prodata500-{x}.xlsx" for x in file_indices]
 
 
 # Excel列番号をアルファベットに変換する関数
