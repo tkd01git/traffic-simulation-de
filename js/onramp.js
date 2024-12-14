@@ -392,11 +392,11 @@ ramp.veh.unshift(virtualStandingVeh);
 var detectors = [];
 var startCoordinate = 1200; // 初期座標
 var increment = 10; // 増加値
-var numDetectors = 41; // 検出器の数
+var numDetectors = 40; // 検出器の数
 
 for (var i = 0; i < numDetectors; i++) { // numDetectors = 41 と仮定
     var coordinate = startCoordinate + (i * increment); // 各検知器の座標
-    detectors[i] = new stationaryDetector(mainroad, coordinate, 4); // 検知器を配置
+    detectors[i] = new stationaryDetector(mainroad, coordinate, 3); // 検知器を配置
 }
 
 

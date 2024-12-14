@@ -25,7 +25,7 @@ def compute_normalized_laplacian(L, D):
     return L_normalized
 
 # ノード数
-N = 20
+N = 40
 
 # 隣接行列を作成し、ラプラシアン行列と正規化ラプラシアンを計算
 A = create_adjacency_matrix(N)
