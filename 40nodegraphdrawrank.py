@@ -6,7 +6,7 @@ import os
 speed_threshold = 50
 
 # 処理するファイル名のリスト
-file_numbers = [1,2,3,4,5]
+file_numbers = [8,9,10,11,12,13,14,15,16,17]
 base_path = "C://Users//YuheiTakada//OneDrive//デスクトップ//traffic-simulation-de"
 file_names = [f"λrankresult{num}.xlsx" for num in file_numbers]
 

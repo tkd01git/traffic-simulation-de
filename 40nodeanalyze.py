@@ -72,7 +72,7 @@ def calculate_F_lambda_global_rank(df, L_normalized):
     return global_ranks
 
 # シートにデータを書き込む関数
-def write_sheet_with_ranks(writer, sheet_name, time_data, speed_data, flow_sum, real_parts_list):
+def write_sheet_with_ranks(writer, sheet_name, time_data, speed_data, real_parts_list):
     output_data = {
         'Time': list(time_data),
         'speed': list(speed_data)}
@@ -85,7 +85,7 @@ def write_sheet_with_ranks(writer, sheet_name, time_data, speed_data, flow_sum, 
     results_df.to_excel(writer, index=False, sheet_name=sheet_name)
 
 # シートにランキングデータを書き込む関数
-def write_sheet_with_global_ranks(writer, sheet_name, time_data, speed_data, flow_sum, global_ranks):
+def write_sheet_with_global_ranks(writer, sheet_name, time_data, speed_data, global_ranks):
     output_data = {
         'Time': list(time_data),
         'speed': list(speed_data)
@@ -151,12 +151,7 @@ for file_index, input_file in zip(file_indices, input_files):
             [f'Sheet{i+1}' for i in range(len(data_frames))]
         )):
             real_parts_list = calculate_F_lambda_real_parts(df, L_normalized)
-            flow_sum = (
-                pd.Series(speed_data)
-                .rolling(window=0, min_periods=0)
-                .sum()
-            )
-            write_sheet_with_ranks(writer, sheet_name, time_data, speed_data, flow_sum, real_parts_list)
+            write_sheet_with_ranks(writer, sheet_name, time_data, speed_data, real_parts_list)
 
     print(f"{result_file1} が保存されました。")
 
@@ -167,11 +162,7 @@ for file_index, input_file in zip(file_indices, input_files):
             [f'Sheet{i+1}' for i in range(len(data_frames))]
         )):
             global_ranks = calculate_F_lambda_global_rank(df, L_normalized)
-            flow_sum = (
-                pd.Series(speed_data)
-                .rolling(window=0, min_periods=0)
-                .sum()
-            )
-            write_sheet_with_global_ranks(writer, sheet_name, time_data, speed_data, flow_sum, global_ranks)
+
+            write_sheet_with_global_ranks(writer, sheet_name, time_data, speed_data, global_ranks)
 
     print(f"{result_file2} が保存されました。")
