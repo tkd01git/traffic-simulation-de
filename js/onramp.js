@@ -42,7 +42,7 @@ console.log(Math.random());          // Always 0.9364577392619949 with 42
 // constants
 //#############################################################
 
-const REFSIZE=500;
+const REFSIZE=800;
 const REFSIZE_SMARTPHONE=150;
 
 //#############################################################
@@ -83,14 +83,16 @@ var driver_varcoeff=0.15; //v0 and a coeff of variation (of "agility")
 
 
 
-qIn=4600/3600; 
+qIn=1000/3600; 
+qOn=500/3600;
 commaDigits=0;
+var inflowPosition = 3200; // 流入位置を指定
 setSlider(slider_qIn, slider_qInVal, 3600*qIn, commaDigits, "veh/h");
 
 
 density=0.01; 
 
-var nLanes_main=2;
+var nLanes_main=1;
 var nLanes_rmp=1;
 
 
@@ -165,7 +167,7 @@ var critAspectRatio=120./80.; // from css file width/height of #contents
                          // max-aspect-ratio: 24/19 etc
 
 var refSizePix=Math.min(canvas.height,canvas.width/critAspectRatio);
-var scale=refSizePix/refSizePhys;
+var scale=refSizePix/(refSizePhys);
 
 
 var hasChanged=true; // window or physical dimensions have changed
@@ -178,10 +180,10 @@ var hasChanged=true; // window or physical dimensions have changed
 
 // all relative "Rel" settings with respect to refSizePhys, not refSizePix!
 
-var center_xRel=0.43;
-var center_yRel=-0.54;
-var arcRadiusRel=0.35;
-var rampLenRel=0.85;
+var center_xRel=0.3;
+var center_yRel=0.8;
+var arcRadiusRel=1;
+var rampLenRel=1;
 
 
 // !!slight double-coding with updateDimensions unavoidable since
@@ -390,13 +392,13 @@ ramp.veh.unshift(virtualStandingVeh);
 
 
 var detectors = [];
-var startCoordinate = 1200; // 初期座標
+var startCoordinate = 3500; // 初期座標
 var increment = 10; // 増加値
 var numDetectors = 40; // 検出器の数
 
-for (var i = 0; i < numDetectors; i++) { // numDetectors = 41 と仮定
+for (var i = 0; i < numDetectors; i++) { 
     var coordinate = startCoordinate + (i * increment); // 各検知器の座標
-    detectors[i] = new stationaryDetector(mainroad, coordinate, 3); // 検知器を配置
+    detectors[i] = new stationaryDetector(mainroad, coordinate, 4); // 検知器を配置
 }
 
 
@@ -600,8 +602,9 @@ function updateSim(){
 
 
   // sourceRoad.connect(target, uSource, uTarget, offsetLane, conflicts)
-  
-  mainroad.updateBCup(qIn,dt); ramp.updateBCup(qOn,dt);
+
+   
+  mainroad.updateBCup(qIn,dt, inflowPosition); ramp.updateBCup(qOn,dt);
   ramp.mergeDiverge(mainroad,mainRampOffset,
 			ramp.roadLen-mergeLen,ramp.roadLen,true,false);
   mainroad.updateBCdown();

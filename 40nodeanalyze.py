@@ -5,7 +5,7 @@ import openpyxl
 
 
 # ファイルを順に処理
-file_indices = [str(i) for i in [8,9,10,11,12,13,14,15,16,17]]
+file_indices = [str(i) for i in [56,57,58]]
 input_files = [f"prodata{x}.xlsx" for x in file_indices]
 
 
@@ -142,7 +142,7 @@ for file_index, input_file in zip(file_indices, input_files):
     ]
 
     time_data = df1.iloc[0].values.flatten()
-    speed_data = df2.iloc[44].values.flatten()
+    speed_data = df2.iloc[99].values.flatten()
 
     # 1つ目の結果ファイルを作成
     with pd.ExcelWriter(result_file1, mode='w') as writer:

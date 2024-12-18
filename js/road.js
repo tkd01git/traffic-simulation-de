@@ -156,7 +156,6 @@ function road(roadID,roadLen,laneWidth,nLanes,trajIn,
 
   this.veh=[];
 
-  this.initRegularVehicles(densInitPerLane,fracTruck,fracScooter,speedInit);
 
     // formally define ego vehicle for external reference
     // if applicable, it will be attributed to one element of this.veh, 
@@ -3598,177 +3597,91 @@ road.prototype.updateBCdown=function(){
 
 
 
-road.prototype.updateBCup=function(Qin,dt,route){
+road.prototype.updateBCup = function(Qin, dt, uInflow, route) {
+  var fracOthers = (typeof fracScooter === 'undefined') ? 0 : fracScooter;
 
-  var fracOthers=(typeof fracScooter === 'undefined') ? 0 : fracScooter;
-
-  // get deterministic dynamics not only for testing but also for games
-  // after restart.
-  // for some reason, this does not work at control_gui.myRestartFunction
-
-
-  if((itime<=1)&&this.isGame){
-    console.log("road.updateBCup: itime=",itime," roadID=",this.roadID,
-		" resetting this.randomValBCup",
-		" scenarioString=",scenarioString);
-    Math.seedrandom(42);
-    this.randomValBCup=1;
-  }
-  
-  var r1=Math.random();
-  var r2=Math.random();
-
-  if(false){
-    console.log("in road.updateBCup: itime=",itime,
-		" this.roadID=",this.roadID,
-		" this.inVehBuffer=",this.inVehBuffer.toFixed(3),
-		" this.randomValBCup=",this.randomValBCup.toFixed(3),
-		" r1=",r1.toFixed(5)," r2=",r2.toFixed(5));
+  if ((itime <= 1) && this.isGame) {
+      console.log("road.updateBCup: resetting randomValBCup");
+      Math.seedrandom(42);
+      this.randomValBCup = 1;
   }
 
+  var r1 = Math.random();
+  var randomAmplitude = 0.2;
 
-  
-  // select false for games
-  var emptyOverfullBuffer=!this.isGame;
-  var randomAmplitude=0.2; //!!this.randomValBCup in 1 +/-randomAmplitude
+  // デフォルトの流入位置は u = 0 とする
+  uInflow = (typeof uInflow === 'undefined') ? 0 : uInflow;
 
+  // 車両ルートを設定
+  this.route = (typeof route === 'undefined') ? [] : route;
 
-  this.route=(typeof route === 'undefined') ? [] : route; // handle opt. args
-
-   //console.log("in road.updateBCup: inVehBuffer="+this.inVehBuffer);
-
-  var v0_truck=Math.min(IDM_v0, speedL_truck);
-  var T_truck=factor_T_truck*IDM_T;
-  var smin=0.7*v0_truck*T_truck; // only inflow if largest gap at least smin
-  var success=false; // false initially
-  if(!this.isRing){
-      this.inVehBuffer+=Qin*dt;
+  var success = false; // 流入成功フラグ
+  if (!this.isRing) {
+      this.inVehBuffer += Qin * dt;
   }
 
-  // no buffer >2 apart for games (then  emptyOverfullBuffer=false)
+  if (this.inVehBuffer >= this.randomValBCup) {
+      this.randomValBCup = 1 + randomAmplitude * (2 * r1 - 1);
 
-  if((emptyOverfullBuffer)&&(this.inVehBuffer>2)){this.inVehBuffer--;}
+      // 新しい車両の属性を取得
+      var vehAttr = this.getAttributes(fracTruck, fracOthers);
+      var vehType = vehAttr.type;
+      var vehLength = vehAttr.len;
+      var vehWidth = vehAttr.width;
 
-		    
-  
-  if(this.inVehBuffer>=this.randomValBCup){
-    this.randomValBCup=1+randomAmplitude*(2*r1-1);
+      var lane = this.nLanes - 1; // 右車線を初期値とする
+      var space = 0;
 
-    if(false){
-      console.log("  BCup: itime=",itime,
-		  " this.roadID=",this.roadID," r1=",r1," r2=",r2,
-		  "trying to insert vehicle: this.inVehBuffer=",
-		  this.inVehBuffer.toFixed(3));
-    }
-
-    // updateBCup: vehTypes: get new vehicle characteristics
-    // vehAttr={type: vehType, len: length, width: width}
-    var vehAttr=this.getAttributes(fracTruck, fracOthers);
-    var vehType=vehAttr.type;
-    var vehLength=vehAttr.len;
-    var vehWidth=vehAttr.width;
-
-    var space=0; //available bumper-to-bumper space gap
-    var lane=this.nLanes-1; // start with right lane
-    if(this.veh.length===0){success=true; space=this.roadLen;}
-
-    // if new veh is a truck, try to insert it at the rightmost lane "lane"
-    // for some strange reason bug if "while(iLead>=0)": 
-    // first truck stands if it is the first to enter right
-      
-    if((!success)&&(vehType==="truck")){
-      var iLead=this.veh.length-1;
-      while( (iLead>0)&&(this.veh[iLead].lane!=lane)){iLead--;}
-      if(iLead==-1){success=true;}
-      else{
-	space=this.veh[iLead].u-this.veh[iLead].len;
-	success=(space>smin);
-      }
-    }
-
-    // MT jun19: proceed further depending on one of two strategies
-    // this.setTrucksAlwaysRight=true
-    //   => no other veh can enter of truck has no space on right
-    // this.setTrucksAlwaysRight=false
-    //   => trucks are tried to set to the right but not forcibly so
-      
-
-
-    // if((!success) && setTrucksAlwaysRight && (vehType==="truck"))
-    // then success is terminally =false in this step
-    // do not need to do any further attempts
-      
-    // version1 (new): set trucks forcedly on right lane(s),
-    // otherwise block 
-      
-    if((!success) &&((!this.setTrucksAlwaysRight)||(vehType!="truck"))){
-      var spaceMax=0;
-      for(var candLane=this.nLanes-1; candLane>=0; candLane--){
-	var iLead=this.veh.length-1;
-	while( (iLead>=0)&&(this.veh[iLead].lane!=candLane)){
-	  iLead--;
-	}
-	space=(iLead>=0)
-	          ? this.veh[iLead].u-this.veh[iLead].len
-		  : this.roadLen+candLane;
-	if(space>spaceMax){
-	          lane=candLane;
-	          spaceMax=space;
-	}
-      }
-      success=(space>=smin);
-    }
- 
-
-
-    if(success){
-      var longModelNew=(vehType==="truck") ? longModelTruck : longModelCar;
-      var LCModelNew=(vehType==="truck") ? LCModelTruck : LCModelCar;
-      var uNew=0;
-
-      //!! MT 2019-09 hack since otherwise veh enter too fast 
-
-      var v0New=0.9*Math.min(longModelNew.v0, longModelTruck.v0);
-      var speedNew=Math.min(v0New, longModelNew.speedlimit,
-				space/longModelNew.T);
-      var vehNew=new vehicle(vehLength,vehWidth,uNew,lane,speedNew,vehType,
-			    this.driver_varcoeff); //updateBCup
-
-      vehNew.longModel=new ACC(); vehNew.longModel.copy(longModelNew);
-
-      if(testNewModel){
-	vehNew.longModel=new CACC(); vehNew.longModel.copy(longModelNew);
-      }
-      vehNew.LCModel=new MOBIL(); vehNew.LCModel.copy(LCModelNew);
-
-      
-      vehNew.longModel.driverfactor=vehNew.driverfactor; //!!
-
-      vehNew.route=this.route;
-      //console.log("road.updateBCup: vehNew.route="+vehNew.route);
-
-
-      //!! define ego vehicles for testing purposes
-
-      if(false){
-	      var percEgo=5;
-	      if(vehNew.id%100<percEgo){vehNew.id=1;}
+      if (this.veh.length === 0) {
+          success = true;
+          space = this.roadLen;
+      } else {
+          // 最もスペースが大きいレーンを探索
+          var spaceMax = 0;
+          for (var candLane = this.nLanes - 1; candLane >= 0; candLane--) {
+              var iLead = this.veh.length - 1;
+              while ((iLead >= 0) && (this.veh[iLead].lane != candLane)) {
+                  iLead--;
+              }
+              space = (iLead >= 0)
+                  ? this.veh[iLead].u - this.veh[iLead].len
+                  : this.roadLen + candLane;
+              if (space > spaceMax) {
+                  lane = candLane;
+                  spaceMax = space;
+              }
+          }
+          success = (space >= 0.7 * vehAttr.len); // 十分なスペースをチェック
       }
 
-      // add vehicle after pos nveh-1
-      this.veh.push(vehNew);  // !!!changeArray
-      this.updateEnvironment();
-      this.inVehBuffer -=1;
-      if(false){
-	console.log("  BCup: itime=",itime," roadID=",this.roadID,
-		    " successfully inserted ",vehType,
-		    " this.inVehBuffer=",
-		    this.inVehBuffer);
+      if (success) {
+          var longModelNew = (vehType === "truck") ? longModelTruck : longModelCar;
+          var LCModelNew = (vehType === "truck") ? LCModelTruck : LCModelCar;
+
+          // 流入位置に基づいて車両を作成
+          var v0New = 0.9 * Math.min(longModelNew.v0, longModelTruck.v0);
+          var speedNew = Math.min(v0New, longModelNew.speedlimit, space / longModelNew.T);
+          var vehNew = new vehicle(vehLength, vehWidth, uInflow, lane, speedNew, vehType, this.driver_varcoeff);
+
+          vehNew.longModel = new ACC();
+          vehNew.longModel.copy(longModelNew);
+          vehNew.LCModel = new MOBIL();
+          vehNew.LCModel.copy(LCModelNew);
+
+          vehNew.route = this.route;
+
+          // 車両をリストに追加し、環境を更新
+          this.veh.push(vehNew);
+          this.updateEnvironment();
+          this.inVehBuffer -= 1;
+
+          if (false) {
+              console.log("Successfully inserted vehicle at uInflow =", uInflow);
+          }
       }
-		   
-    }
   }
-}
+};
+
 
 //######################################################################
 // get target vehicle neighbourhood/context for merging of other roads
