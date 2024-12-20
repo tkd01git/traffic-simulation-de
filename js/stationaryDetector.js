@@ -102,7 +102,7 @@ stationaryDetector.prototype.updateExportString = function () {
         : "--";
 
     // 指定区間の最低速度を計算
-    let averageSpeed = this.getAverageSpeedInRange(this.road, 4000, 4400);
+    let averageSpeed = this.getAverageSpeedInRange(this.road, 5100, 5500);
     var numStr = (averageSpeed !== null) ? Math.round(averageSpeed) : "--";
 
     // exportStringへの追加

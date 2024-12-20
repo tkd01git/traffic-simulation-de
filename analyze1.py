@@ -5,10 +5,10 @@ import os
 
 
 # 使用するデータファイル
-file_path = "C://Users//Yuheitakada//Downloads//data (71).xlsx"
+file_path = "C://Users//Yuheitakada//Downloads//data (12).xlsx"
 
 # データ記録エクセルファイル
-EXCEL_FILE_NAME = "prodata58.xlsx"  # 任意の名前に変更可能
+EXCEL_FILE_NAME = "prodata13.xlsx"  # 任意の名前に変更可能
 
 
 def process_detector_data(file_path, speed_column_index):
@@ -91,37 +91,30 @@ def column_to_letter(column_index):
 # 速度データの処理
 speed_combined_data = process_detector_data(file_path, 2)
 
-# 流量データの処理
-flow_combined_data = process_detector_data(file_path, 1)
 
 # エクセルにデータを書き込む
 with pd.ExcelWriter(EXCEL_FILE_NAME, engine='openpyxl') as writer:
     if not speed_combined_data.empty:
         speed_combined_data.to_excel(writer, sheet_name="Sheet1", index=False, header=False)
-    if not flow_combined_data.empty:
-        flow_combined_data.to_excel(writer, sheet_name="Sheet2", index=False, header=False)
 
-# Sheet2のデータを処理
-sheet2_data = pd.read_excel(EXCEL_FILE_NAME, sheet_name="Sheet2", header=None, engine='openpyxl')
 
 # Sheet1のデータを再度読み込む
 sheet1_data = pd.read_excel(EXCEL_FILE_NAME, sheet_name="Sheet1", header=None, engine='openpyxl')
 
 # 必要な行数を確認し、不足している場合は行を追加
 required_rows = 100
-if sheet2_data.shape[0] < required_rows:
-    additional_rows = required_rows - sheet2_data.shape[0]
-    sheet2_data = pd.concat([sheet2_data, pd.DataFrame([[None] * sheet2_data.shape[1]] * additional_rows, columns=sheet2_data.columns)], ignore_index=True)
+if sheet1_data.shape[0] < required_rows:
+    additional_rows = required_rows - sheet1_data.shape[0]
+    sheet1_data = pd.concat([sheet1_data, pd.DataFrame([[None] * sheet1_data.shape[1]] * additional_rows, columns=sheet1_data.columns)], ignore_index=True)
     
 
-# 追加：4列目のデータをSheet2の100行目に書き込む
+# 追加：4列目のデータをSheet2の200行目に書き込む
 df_additional_data = pd.read_excel(file_path, sheet_name="sheet1", engine='openpyxl')
 if df_additional_data.shape[1] >= 4:
-    sheet2_data.iloc[99, :] = df_additional_data.iloc[:, 3].values[:sheet2_data.shape[1]]
+    sheet1_data.iloc[99, :] = df_additional_data.iloc[:, 3].values[:sheet1_data.shape[1]]
 
 # 最後に全てのデータを書き込む
 with pd.ExcelWriter(EXCEL_FILE_NAME, engine='openpyxl', mode='w') as writer:
     sheet1_data.to_excel(writer, sheet_name="Sheet1", index=False, header=False)
-    sheet2_data.to_excel(writer, sheet_name="Sheet2", index=False, header=False)
 
 print(f"Data has been successfully written to '{EXCEL_FILE_NAME}'.")

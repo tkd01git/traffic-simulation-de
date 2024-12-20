@@ -42,7 +42,7 @@ console.log(Math.random());          // Always 0.9364577392619949 with 42
 // constants
 //#############################################################
 
-const REFSIZE=800;
+const REFSIZE=1000;
 const REFSIZE_SMARTPHONE=150;
 
 //#############################################################
@@ -86,7 +86,7 @@ var driver_varcoeff=0.15; //v0 and a coeff of variation (of "agility")
 qIn=1000/3600; 
 qOn=500/3600;
 commaDigits=0;
-var inflowPosition = 3200; // 流入位置を指定
+var inflowPosition = 4100; // 流入位置を指定
 setSlider(slider_qIn, slider_qInVal, 3600*qIn, commaDigits, "veh/h");
 
 
@@ -392,13 +392,13 @@ ramp.veh.unshift(virtualStandingVeh);
 
 
 var detectors = [];
-var startCoordinate = 3500; // 初期座標
-var increment = 10; // 増加値
+var startCoordinate = 4500; // 初期座標
+var increment = 8; // 増加値
 var numDetectors = 40; // 検出器の数
 
 for (var i = 0; i < numDetectors; i++) { 
     var coordinate = startCoordinate + (i * increment); // 各検知器の座標
-    detectors[i] = new stationaryDetector(mainroad, coordinate, 4); // 検知器を配置
+    detectors[i] = new stationaryDetector(mainroad, coordinate, 3); // 検知器を配置
 }
 
 

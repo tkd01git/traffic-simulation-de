@@ -25,7 +25,7 @@ def compute_normalized_laplacian(L, D):
     return L_normalized
 
 # ノード数
-N = 40
+N = 50
 
 # 隣接行列を作成し、ラプラシアン行列と正規化ラプラシアンを計算
 A = create_adjacency_matrix(N)
@@ -78,6 +78,6 @@ for idx in range(N, len(axes)):
     axes[idx].axis('off')
 
 # 全体のラベルを設定
-plt.suptitle('Laplacian Eigenvectors Visualization (N=20)', fontsize=16)
+plt.suptitle('Laplacian Eigenvectors Visualization', fontsize=16)
 plt.tight_layout(rect=[0, 0.03, 1, 0.95])  # タイトルが重ならないように調整
 plt.show()
